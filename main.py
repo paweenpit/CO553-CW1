@@ -14,56 +14,66 @@ def H(labels):
     probs = counts / total
     return -sum(probs * np.log2(probs))
 
-def gain(sorted_data, left_data, right_data):
+def gain(dataset, left_data, right_data):
 	''' return gain value of the feature according the split index'''
-	len_all = len(sorted_data)
+	len_all = len(dataset)
 	len_left = len(left_data)
 	len_right = len(right_data)
 
 	remainder = (H(left_data)*len_left + H(right_data)*len_right) / len_all
 
-	return H(sorted_data) - remainder
+	return H(dataset) - remainder
 
-def feature_gain(feature, label):
-	''' return (max gain, value) to split a feature 
+def feature_gain(dataset, index):
+	''' return (max gain, value) to split a feature (dataset[:,index])
 		according to its gain value'''
 	# iterate through each value in feature and compute gain
 	best_feature_split = (-float('inf'), 0, [], []) # best feature gain, best value, left_data, right_data
-	len_data = len(label)
+	len_data = len(dataset)
 
-	data = np.column_stack((feature,label)) # 2d np array of feature and label
-	sorted_data = data[data[:,0].argsort()]
+	sorted_data = dataset[dataset[:,index].argsort()] # sort data by feature
+	feature_values = np.unique(dataset[:,index])
 
-	for ind, (val, _) in enumerate(sorted_data):
-		# skip index if it has the same value as the previous one
-		if ind < len_data-1 and val == sorted_data[ind+1,0]:
-			continue
-		else:
-			left_data = sorted_data[:ind]
-			right_data = sorted_data[ind:]
+	for val in feature_values:
+		left_data = sorted_data[np.where(sorted_data[:,index] <= val)]
+		right_data = sorted_data[np.where(sorted_data[:,index] > val)]
 
-			att_gain = gain(sorted_data, left_data, right_data)
+		feature_gain = gain(sorted_data, left_data, right_data)
 
-			if att_gain > best_feature_split[0]:
-				best_feature_split = (att_gain, val, left_data, right_data)
+		if feature_gain > best_feature_split[0]:
+			best_feature_split = (feature_gain, val, left_data, right_data)
 
 	return best_feature_split
 
 def find_split(dataset):
 	''' return: the best feature, value(continuous), and index 
 		for the best split'''
-	if len(dataset) == 0:
-		return (0, 0, [], [])
-
 	best_gain = -float('inf')
 	best_split = (0, 0, [], []) # best feature, best value, left_data, right_data
 	label = dataset[:,-1]
 
-	for i in range(len(dataset[0])-1):
-		gain, value, left_data, right_data = feature_gain(dataset[:,i], label)
+	for att_i in range(len(dataset[0])-1):
+		gain, value, left_data, right_data = feature_gain(dataset, att_i)
 		if gain > best_gain:
 			best_gain = gain
-			best_split = (i, value, left_data, right_data)
+			best_split = (att_i, value, left_data, right_data)
 
 	return best_split
+
+def decision_tree_learning(dataset, depth):
+	''' if all samples have the same label
+		return a leaf node with its value, depth '''
+	# check if all values in the label are the same
+	if len(np.unique(dataset[:,-1])) == 1: 
+		return {'attribute': 0, 'value': 0, 'left': None, 'right': None}, depth
+	else:
+		# find feature and value to split the dataset
+		attribute, value, left_data, right_data = find_split(dataset)
+
+		left_node, left_depth = decision_tree_learning(left_data, depth+1)
+		right_node, right_depth = decision_tree_learning(right_data, depth+1)
+
+		root = {'attribute': attribute, 'value': value, 'left': left_node, 'right': right_node}
+
+		return root, max(left_depth, right_depth)
 
