@@ -46,7 +46,7 @@ def feature_gain(dataset, index):
 	return best_feature_split
 
 def find_split(dataset):
-	''' return: the best feature, value(continuous), and index 
+	''' return: the best feature, value(continuous), and index
 		for the best split'''
 	best_gain = -float('inf')
 	best_split = (0, 0, [], []) # best feature, best value, left_data, right_data
@@ -64,8 +64,9 @@ def decision_tree_learning(dataset, depth):
 	''' if all samples have the same label
 		return a leaf node with its value, depth '''
 	# check if all values in the label are the same
-	if len(np.unique(dataset[:,-1])) == 1: 
-		return {'attribute': 0, 'value': 0, 'left': None, 'right': None}, depth
+	if len(np.unique(dataset[:,-1])) == 1:
+		return{'label': int(dataset[:,-1][0])}, depth
+
 	else:
 		# find feature and value to split the dataset
 		attribute, value, left_data, right_data = find_split(dataset)
@@ -76,4 +77,3 @@ def decision_tree_learning(dataset, depth):
 		root = {'attribute': attribute, 'value': value, 'left': left_node, 'right': right_node}
 
 		return root, max(left_depth, right_depth)
-

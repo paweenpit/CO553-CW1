@@ -19,4 +19,3 @@ def test(data):
 if __name__ == '__main__':
 	clean_data = import_clean_data()
 	test(clean_data)
-
