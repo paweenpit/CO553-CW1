@@ -15,7 +15,7 @@ def H(labels):
 	return -sum(probs * np.log2(probs))
 
 def gain(dataset, left_data, right_data):
-	''' return gain value of the feature according the split index'''
+	''' return gain value of a feature according to left and right data'''
 	len_all = len(dataset)
 	len_left = len(left_data)
 	len_right = len(right_data)
@@ -25,7 +25,7 @@ def gain(dataset, left_data, right_data):
 	return H(dataset) - remainder
 
 def feature_gain(dataset, index):
-	''' return (max gain, value) to split a feature (dataset[:,index])
+	''' return: (max gain, value) to split a index-th feature
 		according to its gain value'''
 	# iterate through each value in feature and compute gain
 	best_feature_split = (-float('inf'), 0, [], []) # best feature gain, best value, left_data, right_data
@@ -46,8 +46,7 @@ def feature_gain(dataset, index):
 	return best_feature_split
 
 def find_split(dataset):
-	''' return: the best feature, value(continuous), and index 
-		for the best split'''
+	''' return: best feature, value, left data and right data for the best split'''
 	best_gain = -float('inf')
 	best_split = (0, 0, [], []) # best feature, best value, left_data, right_data
 	label = dataset[:,-1]
@@ -61,15 +60,16 @@ def find_split(dataset):
 	return best_split
 
 def decision_tree_learning(dataset, depth):
-	''' if all samples have the same label
-		return a leaf node with its value, depth '''
+	''' return: root node of the decision tree '''
 	# check if all values in the label are the same
+	# do not split and return a leaf
 	if len(np.unique(dataset[:,-1])) == 1: 
 		return {'attribute': 0, 'value': 0, 'left': None, 'right': None}, depth
 	else:
 		# find feature and value to split the dataset
 		attribute, value, left_data, right_data = find_split(dataset)
 
+		# recursively calls the fucntion on left and right node
 		left_node, left_depth = decision_tree_learning(left_data, depth+1)
 		right_node, right_depth = decision_tree_learning(right_data, depth+1)
 
