@@ -35,8 +35,8 @@ def feature_gain(dataset, index):
 	feature_values = np.unique(dataset[:,index])
 
 	for val in feature_values:
-		left_data = sorted_data[np.where(sorted_data[:,index] <= val)]
-		right_data = sorted_data[np.where(sorted_data[:,index] > val)]
+		left_data = sorted_data[np.where(sorted_data[:,index] < val)]
+		right_data = sorted_data[np.where(sorted_data[:,index] >= val)]
 
 		feature_gain = gain(sorted_data, left_data, right_data)
 
