@@ -80,30 +80,35 @@ def decision_tree_learning(dataset, depth=0):
 
 		return root, max(left_depth, right_depth)
 
-def visualisation(decision_tree,start_point):
-# 	fig , ax = plt.subplots()
-# 	#currentAxis = plt.gca()
-# 	rectangle = {'rect' : ptch.Rectangle((start_point[0],start_point[1]),0.2,0.1,fill=None,alpha=1)}
-# 	ax.add_artist (rectangle[1])
-# 	ax.annotate(0.5,(0.2,0.2))
-# 	plt.axis('off')
-# 	plt.show()
-	fig, ax = plt.subplots()
-	rectangles = { str(decision_tree['attribute']): ptch.Rectangle((start_point[0],start_point[1]), 5, 2,fill = None , alpha = 1)}
+def nodes(decision_tree, depth , height , width , x , y ):
 
-	for r in rectangles:
-		ax.add_artist(rectangles[r])
-		rx, ry = rectangles[r].get_xy()
-		cx = rx + rectangles[r].get_width()/2.0
-		cy = ry + rectangles[r].get_height()/2.0
-		ax.annotate(r, (cx, cy), color='b', weight='bold',fontsize=6, ha='center', va='center')
+	if decision_tree['attribute'] == 0 and decision_tree['value']==0 and decision_tree['left'] == None and decision_tree['right'] == None :
+			plt.text(x, y, "X"+str(decision_tree['attribute'])+"<"+str(decision_tree['value']) , size=height,ha="center", va="center", bbox=dict(boxstyle='round', facecolor='wheat') , fontsize = 8)
 
-	ax.set_xlim((0, 15))
-	ax.set_ylim((0, 15))
-	plt.axis('off')
-	ax.set_aspect('equal')
-	plt.show()
+	plt.text(x, y, "X"+str(decision_tree['attribute'])+"<"+str(decision_tree['value']) , size=height,ha="center", va="center", bbox=dict(boxstyle='round', facecolor='wheat') , fontsize = 8)
 
-start_point=[5,10]
+	if decision_tree['left'] != None :
+		x_left = x - width/2
+		y_left = y - height
+		nodes (decision_tree['left'] , depth+1 , height , width , x_left , y_left )
+
+	if decision_tree['right'] != None :
+		x_right = x + width/2
+		y_right = y - height
+		nodes (decision_tree['right'] , depth+1 , height , width , x_right , y_right )
+
+
 decision_tree , _ = decision_tree_learning(import_clean_data(),0)
-visualisation(decision_tree,start_point)
+depth = 5
+imageSize = 100
+img = np.zeros([imageSize,imageSize,3],dtype=np.uint8)
+img.fill(205)
+
+plt.figure(figsize=(10,10))
+# fig,ax = plt.subplots(1)
+# ax.imshow(img)#
+height = imageSize/depth
+width =  height
+nodes(decision_tree, depth , 0.2 , 0.2, 0.5 , 1 )
+plt.axis('off')
+plt.show()				
