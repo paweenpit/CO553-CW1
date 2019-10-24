@@ -6,17 +6,25 @@ import numpy as np
 from decision_tree import decision_tree_learning, import_clean_data,\
         import_noisy_data
 
-test_size = 2000/10
+test_size = int(2000/10)
 
 
-# def create_fold(data):
-#     test_data_set, training test_data_set = np.split(data.copy(), [test_size], axis=0)
-#     #first fold
+def create_fold(data, nr_of_folds = 10):
+
+    np.random.shuffle(data)
+
+    folds = np.split(data, nr_of_folds)
+
+    print(folds[0])
+
+    # test_data_set, training_data_set = np.split(data.copy(), [test_size], axis=0)
+    # print(test_data_set, np.shape(test_data_set))
+    #first fold
 #     # test_data_set[:test_size], test_slice = test_slice, remainder[:test_size].copy()
 #     # #SECOND_FOLD
 #     # test_data_set[test_size:2*test_size], test_slice = test_slice, remainder[test_size:2*test_size].copy()
 #     # #thrid_fold
-#     print(test_data_set, trainig_data_set)
+    # print(test_data_set, trainig_data_set)
 
 
 def evaluate(test_data_set, trained_tree):
@@ -59,13 +67,14 @@ def metrics(confusion_matrix):
 
 
 def test(data):
-    tree, depth = decision_tree_learning(data, 0)
-    print(evaluate(data, tree))
-
+    random = create_fold(clean_data)
+    print(random)
+    # tree, depth = decision_tree_learning(data, 0)
+    # print(evaluate(data, tree))
 
 
 
 if __name__ == '__main__':
-	clean_data = import_clean_data()
-    # create_fold(clean_data)
-	test(clean_data)
+    clean_data = import_clean_data()
+    create_fold(clean_data)
+	# test(clean_data)
