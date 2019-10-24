@@ -12,8 +12,12 @@ test_size = int(2000/10)
 def create_fold(data, nr_of_folds = 10):
 
     np.random.shuffle(data)
-
     folds = np.split(data, nr_of_folds)
+
+    for fold in folds:
+        training_data_set = folds
+
+
 
     print(folds[0])
 
