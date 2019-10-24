@@ -12,6 +12,7 @@ def H(labels):
 	total = len(labels)
 	_, counts = np.unique(labels, return_counts=True)
 	probs = counts / total
+	
 	return -sum(probs * np.log2(probs))
 
 def gain(dataset, left_data, right_data):
