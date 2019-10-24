@@ -6,6 +6,18 @@ import numpy as np
 from decision_tree import decision_tree_learning, import_clean_data,\
         import_noisy_data
 
+test_size = 2000/10
+
+
+def create_fold(data):
+    test_data_set, training test_data_set = np.split(data.copy(), [test_size], axis=0)
+    #first fold
+    # test_data_set[:test_size], test_slice = test_slice, remainder[:test_size].copy()
+    # #SECOND_FOLD
+    # test_data_set[test_size:2*test_size], test_slice = test_slice, remainder[test_size:2*test_size].copy()
+    # #thrid_fold
+    print(test_data_set, trainig_data_set)
+
 
 def evaluate(test_data_set, trained_tree):
     confusion_matrix = np.zeros((4,4), dtype = int)
@@ -55,4 +67,5 @@ def test(data):
 
 if __name__ == '__main__':
 	clean_data = import_clean_data()
-	test(clean_data)
+    create_fold(clean_data)
+	# test(clean_data)
