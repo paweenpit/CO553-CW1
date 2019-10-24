@@ -12,6 +12,7 @@ def H(labels):
 	total = len(labels)
 	_, counts = np.unique(labels, return_counts=True)
 	probs = counts / total
+	
 	return -sum(probs * np.log2(probs))
 
 def gain(dataset, left_data, right_data):
@@ -64,7 +65,7 @@ def decision_tree_learning(dataset, depth):
 	# check if all values in the label are the same
 	# do not split and return a leaf
 	if len(np.unique(dataset[:,-1])) == 1: 
-		return {'attribute': 0, 'value': 0, 'left': None, 'right': None}, depth
+		return {'label': dataset[:,-1][0]}, depth
 	else:
 		# find feature and value to split the dataset
 		attribute, value, left_data, right_data = find_split(dataset)
