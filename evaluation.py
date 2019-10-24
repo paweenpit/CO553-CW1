@@ -10,10 +10,17 @@ K = 10
 test_size = 2000/K
 
 
-def create_fold(data):
-    np.random.shuffle(data)
+def create_fold(data, nr_of_folds = 10):
 
-    return np.array_split(data, K)
+    np.random.shuffle(data)
+    folds = np.split(data, nr_of_folds)
+
+    for fold in folds:
+        training_data_set = folds
+
+
+
+    print(folds[0])
 
 
 def evaluate(test_dataset, trained_tree):
