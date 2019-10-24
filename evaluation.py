@@ -10,14 +10,10 @@ K = 10
 test_size = 2000/K
 
 
-# def create_fold(data):
-#     test_dataset, training test_dataset = np.split(data.copy(), [test_size], axis=0)
-#     #first fold
-#     # test_dataset[:test_size], test_slice = test_slice, remainder[:test_size].copy()
-#     # #SECOND_FOLD
-#     # test_dataset[test_size:2*test_size], test_slice = test_slice, remainder[test_size:2*test_size].copy()
-#     # #thrid_fold
-#     print(test_dataset, trainig_data_set)
+def create_fold(data):
+    np.random.shuffle(data)
+
+    return np.array_split(data, K)
 
 
 def evaluate(test_dataset, trained_tree):
@@ -65,12 +61,11 @@ def metrics(confusion_matrix):
     average_precision = np.mean(precision)
 
     F1 = 2*(average_precision*average_recall)/(average_precision + average_recall)
-    
+
     classification_rate = np.sum(np.diagonal(confusion_matrix))/np.sum(confusion_matrix)
     classification_error = 1 - classification_rate
 
     return average_recall, average_precision, F1, classification_rate
-
 
 
 def test(data):
