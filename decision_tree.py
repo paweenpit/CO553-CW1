@@ -60,7 +60,7 @@ def find_split(dataset):
 
 	return best_split
 
-def decision_tree_learning(dataset, depth):
+def decision_tree_learning(dataset, depth=0):
 	''' return: root node of the decision tree '''
 	# check if all values in the label are the same
 	# do not split and return a leaf
