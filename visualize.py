@@ -4,24 +4,29 @@ from decision_tree import *
 from util import *
 
 def nodes(decision_tree, depth, x, y, height):
-	''' recursive function to create node for the decision tree'''
+	''' recursive function to plot the decision tree'''
+	# if the node is a leaf
 	if decision_tree['attribute'] == 0 and decision_tree['value'] == 0 \
 			and decision_tree['left'] == None and decision_tree['right'] == None:
-		plt.text(x, y, 
-				'X{dt[attribute]}<{dt[value]}'.format(dt=decision_tree),
-				size = height,
-				ha = "center", 
-				va = "center", 
-				bbox = dict(boxstyle='round', facecolor='white'), 
-				fontsize = 10 - np.minimum(depth, 5))
-
-	plt.text(x, y, 
+		plt.text(
+			x, y, 
 			'X{dt[attribute]}<{dt[value]}'.format(dt=decision_tree),
 			size = height,
-			ha = "center", 
-			va = "center", 
+			ha = 'center', 
+			va = 'center', 
 			bbox = dict(boxstyle='round', facecolor='white'), 
-			fontsize = 10 -  np.minimum(depth, 5))
+			fontsize = 10 - np.minimum(depth, 5)
+		)
+	
+	plt.text(
+		x, y, 
+		'X{dt[attribute]}<{dt[value]}'.format(dt=decision_tree),
+		size = height,
+		ha = 'center', 
+		va = 'center', 
+		bbox = dict(boxstyle='round', facecolor='white'), 
+		fontsize = 10 - np.minimum(depth, 5)
+	)
 
 	if decision_tree['left'] != None :
 		x_left = x - 1/(2**(depth+2))
@@ -37,7 +42,7 @@ def nodes(decision_tree, depth, x, y, height):
 
 def visualize(dataset, depth=5):
 	''' visualize the tree'''
-	decision_tree , _ = decision_tree_learning(dataset)
+	decision_tree, _ = decision_tree_learning(dataset)
 
 	plt.figure(figsize=(12,6))
 	axes = plt.gca()
