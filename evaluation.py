@@ -15,12 +15,19 @@ def create_fold(data, nr_of_folds = 10):
     np.random.shuffle(data)
     folds = np.split(data, nr_of_folds)
 
-    for fold in folds:
-        training_data_set = folds
+    for index in range(nr_of_folds):
+        test_data_set = folds[index]
+        training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
+
+        tree, _ = decision_tree_learning(training_data_set, 0)
+
+        confusion_matrix , [average_recall, average_precision, F1, classification_rate]\
+        = evaluate(test_data_set, tree)
+
+        print(confusion_matrix , [average_recall, average_precision, F1, classification_rate])
 
 
 
-    print(folds[0])
 
 
 def evaluate(test_dataset, trained_tree):
@@ -81,6 +88,6 @@ def test(data):
 
 
 if __name__ == '__main__':
-	clean_data = import_clean_data()
-    # create_fold(clean_data)
-	test(clean_data)
+    clean_data = import_clean_data()
+    create_fold(clean_data)
+	# test(clean_data)
