@@ -44,7 +44,6 @@ def plot_node(decision_tree, depth, x, y, height):
 			plt.plot([x, x_right], [y, y_right], color=color)
 			plot_node(decision_tree['right'], depth+1, x_right, y_right, height)
 
-
 def visualize(dataset, depth=5):
 	''' visualize the tree'''
 	decision_tree, _ = decision_tree_learning(dataset)
@@ -59,3 +58,4 @@ def visualize(dataset, depth=5):
 
 	plt.axis('off')
 	plt.show()
+
