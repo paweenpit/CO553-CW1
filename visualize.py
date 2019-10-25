@@ -56,4 +56,4 @@ def visualize(dataset, depth=5):
 	plt.axis('off')
 	plt.show()		
 
-visualize(import_clean_data())
+
