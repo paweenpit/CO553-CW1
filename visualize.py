@@ -1,5 +1,3 @@
-import matplotlib.lines as mlines
-
 from decision_tree import *
 from util import *
 
@@ -39,7 +37,7 @@ def plot_node(decision_tree, depth, x, y, height):
 		if decision_tree['right'] != None :
 			x_right = x + 1/(2**(depth+2))
 			y_right = y - height
-			
+
 			plt.plot([x, x_right], [y, y_right], marker='o')
 			plot_node(decision_tree['right'], depth+1, x_right, y_right, height)
 
@@ -54,7 +52,9 @@ def visualize(dataset, depth=5):
 	axes.set_ylim([0,1])
 	height = 1/depth
 
-	nodes(decision_tree, 0, 0.5, 1, height)
+	plot_node(decision_tree, 0, 0.5, 1, height)
 
 	plt.axis('off')
-	plt.show()		
+	plt.show()
+
+visualize(import_noisy_data())
