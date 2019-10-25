@@ -1,7 +1,7 @@
 from decision_tree import *
 from util import *
 
-def nodes(decision_tree, depth, x, y, height):
+def plot_node(decision_tree, depth, x, y, height):
 	''' recursive function to plot the decision tree'''
 	# if the node is a leaf
 	if 'label' in decision_tree:
@@ -11,7 +11,7 @@ def nodes(decision_tree, depth, x, y, height):
 			size = height,
 			ha = 'center', 
 			va = 'center', 
-			bbox = dict(boxstyle='round', facecolor='white'), 
+			bbox = dict(boxstyle='round', facecolor='yellow'), 
 			fontsize = 10 - np.minimum(depth, 5)
 		)
 		return
@@ -25,17 +25,21 @@ def nodes(decision_tree, depth, x, y, height):
 		fontsize = 10 - np.minimum(depth, 5)
 	)
 
+	# recursively call left and right leaves
 	if decision_tree['left'] != None :
 		x_left = x - 1/(2**(depth+2))
 		y_left = y - height
+
 		plt.plot([x, x_left], [y, y_left])
-		nodes(decision_tree['left'], depth+1, x_left, y_left, height)
+		plot_node(decision_tree['left'], depth+1, x_left, y_left, height)
 
 	if decision_tree['right'] != None :
 		x_right = x + 1/(2**(depth+2))
 		y_right = y - height
-		plt.plot([x ,x_right] ,[y ,y_right])
-		nodes(decision_tree['right'], depth+1, x_right, y_right, height)
+		
+		plt.plot([x, x_right], [y, y_right])
+		plot_node(decision_tree['right'], depth+1, x_right, y_right, height)
+
 
 def visualize(dataset, depth=5):
 	''' visualize the tree'''
@@ -46,8 +50,10 @@ def visualize(dataset, depth=5):
 	axes.set_xlim([0,1])
 	axes.set_ylim([0,1])
 	height = 1/depth
-	nodes(decision_tree, 0 , 0.5 , 1 , height )
+
+	plot_node(decision_tree, 0, 0.5, 1, height)
+
 	plt.axis('off')
 	plt.show()		
 
-visualize(import_clean_data() )
+visualize(import_clean_data())
