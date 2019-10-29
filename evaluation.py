@@ -6,15 +6,41 @@ import numpy as np
 from decision_tree import decision_tree_learning, import_clean_data,\
         import_noisy_data
 
-K = 10
-test_size = 2000/K
 
-
-def _10_fold_evaluation(data, nr_of_folds = 10):
-
+def K_fold_evaluation_parameter_tuning(data, nr_of_folds = 10):
     np.random.shuffle(data)
     folds = np.split(data, nr_of_folds)
+    for index in range(nr_of_folds):
+        test_data_set = folds[index]
+        validation_and_training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
 
+        (average_classification_rate,
+        average_recall,
+        average_precision,
+        average_F1) = \
+        K_fold_evaluation(validation_and_training_data_set, nr_of_folds = nr_of_folds - 1, shuffle = False)
+
+        print(average_classification_rate,
+               average_recall,
+               average_precision,
+               average_F1)
+
+       #TODO: compute average measures over classes
+       # update/prune and run again and compare
+       # save values for the best tree
+
+
+
+def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
+    '''
+    return: average confusion matrix, recall, precision, F1 score, classification rate
+    across the K-folds.
+    '''
+    #shuffle the data so its not in labeled order
+    if shuffle == True:
+        np.random.shuffle(data)
+    folds = np.split(data, nr_of_folds)
+    #initiate arrays for storing evaluation measures
     recall_matrix = []
     precision_matrix = []
     F1_matrix = []
@@ -22,16 +48,18 @@ def _10_fold_evaluation(data, nr_of_folds = 10):
     confusion_tensor = []
 
     for index in range(nr_of_folds):
+        #pick out folds for training and testing
         test_data_set = folds[index]
         training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
-
+        #train the tree
         tree, _ = decision_tree_learning(training_data_set, 0)
-
+        #evaluate the tree
         confusion_matrix , recall, precision, F1, classification_rate\
         = evaluate(test_data_set, tree)
 
+        #store evaluation measures
+        confusion_matrix = np.reshape(confusion_matrix,(1, 4, 4))
         classification_rates.append(classification_rate)
-
         if index == 0:
             recall_matrix = recall
             precision_matrix = precision
@@ -41,23 +69,19 @@ def _10_fold_evaluation(data, nr_of_folds = 10):
             recall_matrix = np.vstack((recall_matrix, recall))
             precision_matrix = np.vstack((precision_matrix, precision))
             F1_matrix = np.vstack((F1_matrix, F1))
-            confusion_tensor = np.dstack((confusion_tensor, confusion_matrix))
+            confusion_tensor = np.vstack((confusion_tensor, confusion_matrix))
 
-        print(confusion_tensor[1])
-
+    #calculate mean of evaluation measures
     average_recall = np.mean(recall_matrix, axis=0)
     average_precision = np.mean(precision_matrix, axis=0)
     average_F1 = np.mean(precision_matrix, axis=0)
     average_classification_rate = np.mean(classification_rates)
+    average_confusion_matrix = np.mean(confusion_tensor, axis =0)
 
-
-
-    # print(average_recall, average_precision, average_F1, average_classification_rate)
-
-    return(average_recall,
-            average_precision,
-            average_F1,
-            average_classification_rate)
+    return(average_classification_rate,
+           average_recall,
+           average_precision,
+           average_F1)
 
 
 def evaluate(test_dataset, trained_tree):
@@ -114,14 +138,11 @@ def metrics(confusion_matrix):
     return recall, precision, F1, classification_rate
 
 
-def test(data):
-    tree, depth = decision_tree_learning(data, 0)
-    print(evaluate(data, tree))
-
 
 if __name__ == '__main__':
     clean_data = import_clean_data()
     noisy_data = import_noisy_data()
-    _10_fold_evaluation(clean_data)
-    _10_fold_evaluation(noisy_data)
-	# test(clean_data)
+    # clean_classification_rate = K_fold_evaluation(clean_data)[0]
+    # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
+    # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
+    K_fold_evaluation_parameter_tuning(noisy_data)
