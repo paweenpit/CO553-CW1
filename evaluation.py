@@ -6,8 +6,33 @@ import numpy as np
 from decision_tree import decision_tree_learning, import_clean_data,\
         import_noisy_data
 
-def prune_tree(tree):
-    pass
+def prune_tree(data,tree):
+    lables = data[,7]
+    original_tree = tree.copy()
+    current_node = tree
+    while( True ) :
+        if ('label' in current_node['left']) and ('label' in current_node['right'] ):
+            left_leaf = current_node['left']
+            right_leaf = current_node['right']
+            if left_leaf['is_checked'] == False :
+                left_num = lables.count(left_leaf['label'])
+                right_num = lables.count(right_leaf['label'])
+                label = left_leaf['label']
+                if left_num < right_num :
+                    label = right_leaf['label']
+                 
+                current_node['attribute'] = None
+                current_node['value'] = None
+                current_node['left'] = None
+                current_node['right'] = None
+
+                current_node['lable'] = label
+                current_node['is_cheked'] = False
+
+                original_tree['left']['is_checked'] = True
+                original_tree['right']['is_checked'] = True
+                
+                
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     np.random.shuffle(data)

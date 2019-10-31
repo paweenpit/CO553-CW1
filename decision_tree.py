@@ -65,7 +65,7 @@ def decision_tree_learning(dataset, depth):
 		return a leaf node with its value, depth '''
 	# check if all values in the label are the same
 	if len(np.unique(dataset[:,-1])) == 1:
-		return{'label': int(dataset[:,-1][0])}, depth
+		return{'label': int(dataset[:,-1][0]), 'is_checked' : False}, depth
 
 	else:
 		# find feature and value to split the dataset
