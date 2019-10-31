@@ -6,29 +6,89 @@ import numpy as np
 from decision_tree import decision_tree_learning, import_clean_data,\
         import_noisy_data
 
+def prune_tree(tree):
+    pass
 
-def K_fold_evaluation_parameter_tuning(data, nr_of_folds = 10):
+def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     np.random.shuffle(data)
     folds = np.split(data, nr_of_folds)
-    for index in range(nr_of_folds):
-        test_data_set = folds[index]
-        validation_and_training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
+    test_data_set = folds[0]
+    training_validation_data_set = np.concatenate(folds[1:])
+    #train and evaluate unpruned trees
+    (average_classification_rate,
+    average_recall,
+    average_precision,
+    average_F1,
+    average_confusion_matrix,
+    trees) = \
+    K_fold_evaluation(training_validation_data_set,\
+            nr_of_folds = nr_of_folds - 1, shuffle = False)
 
-        (average_classification_rate,
-        average_recall,
-        average_precision,
-        average_F1) = \
-        K_fold_evaluation(validation_and_training_data_set, nr_of_folds = nr_of_folds - 1, shuffle = False)
+    print(average_classification_rate,
+           average_recall,
+           average_precision,
+           average_F1)
 
-        print(average_classification_rate,
-               average_recall,
-               average_precision,
-               average_F1)
+    folds = np.split(data, nr_of_folds)
+    for tree in range(len(trees)):
+        target_classification_rate = average_classification_rate
+        target_recall = average_recall
+        target_precision = average_precision
+        target_F1 = average_F1
+        target_confusion_matrix = average_confusion_matrix
 
-       #TODO: compute average measures over classes
-       # update/prune and run again and compare
-       # save values for the best tree
+        while True:
+            recall_matrix = []
+            precision_matrix = []
+            F1_matrix = []
+            classification_rates = []
+            confusion_tensor = []
+            #pruned_tree, flag = prune(trees[tree])
+            # if flag:
+            #     break
+            for index in range(nr_of_folds):
 
+                evaluation_data_set = folds[index]
+                confusion_matrix, recall, precision, F1, classification_rate\
+                = evaluate(test_data_set, trees[tree])
+                print(classification_rate)
+
+                confusion_matrix = np.reshape(confusion_matrix,(1, 4, 4))
+                classification_rates.append(classification_rate)
+                if index == 0:
+                    recall_matrix = recall
+                    precision_matrix = precision
+                    F1_matrix = F1
+                    confusion_tensor = confusion_matrix
+                else:
+                    recall_matrix = np.vstack((recall_matrix, recall))
+                    precision_matrix = np.vstack((precision_matrix, precision))
+                    F1_matrix = np.vstack((F1_matrix, F1))
+                    confusion_tensor = np.vstack((confusion_tensor, confusion_matrix))
+
+            #calculate mean of evaluation measures
+            pruned_average_recall = np.mean(recall_matrix, axis=0)
+            pruned_average_precision = np.mean(precision_matrix, axis=0)
+            pruned_average_F1 = np.mean(precision_matrix, axis=0)
+            pruned_average_classification_rate = np.mean(classification_rates)
+            pruned_average_confusion_matrix = np.mean(confusion_tensor, axis =0)
+
+            if pruned_average_classification_rate <= target_classification_rate:
+                trees[tree] = pruned_tree
+                target_classification_rate = pruned_average_classification_rate
+                target_recall = pruned_average_recall
+                target_precision = pruned_average_precision
+                target_F1 = pruned_average_F1
+                target_confusion_matrix = pruned_average_confusion_matrix
+
+
+    return(trees)
+
+
+
+   #TODO: compute average measures over classes
+   # update/prune and run again and compare
+   # save values for the best tree
 
 
 def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
@@ -46,13 +106,15 @@ def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
     F1_matrix = []
     classification_rates = []
     confusion_tensor = []
+    trees = []
 
     for index in range(nr_of_folds):
         #pick out folds for training and testing
         test_data_set = folds[index]
         training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
         #train the tree
-        tree, _ = decision_tree_learning(training_data_set, 0)
+        tree, depth = decision_tree_learning(training_data_set, 0)
+        trees.append(tree)
         #evaluate the tree
         confusion_matrix , recall, precision, F1, classification_rate\
         = evaluate(test_data_set, tree)
@@ -81,7 +143,9 @@ def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
     return(average_classification_rate,
            average_recall,
            average_precision,
-           average_F1)
+           average_F1,
+           average_confusion_matrix,
+           trees)
 
 
 def evaluate(test_dataset, trained_tree):
@@ -145,4 +209,4 @@ if __name__ == '__main__':
     # clean_classification_rate = K_fold_evaluation(clean_data)[0]
     # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
     # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
-    K_fold_evaluation_parameter_tuning(noisy_data)
+    K_fold_pruning_evaluation(noisy_data)
