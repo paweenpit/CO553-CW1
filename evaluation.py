@@ -10,45 +10,47 @@ from decision_tree import decision_tree_learning, import_clean_data,\
 def prune_tree( labels , tree ) : 
     original_tree_current_node = tree.copy()
     current_node = tree
+    if 'left' in current_node and current_node['left'] != None: 
+        if (  'label' in current_node['left']) and ('label' in current_node['right'] ):
+            left_leaf = current_node['left']
+            right_leaf = current_node['right']
 
-    if ('label' in current_node['left']) and ('label' in current_node['right'] ):
-        left_leaf = current_node['left']
-        right_leaf = current_node['right']
-        if left_leaf['is_checked'] == False :
-            left_num = labels.count(left_leaf['label'])
-            right_num = labels.count(right_leaf['label'])
-            label = left_leaf['label']
-            if left_num < right_num :
-                label = right_leaf['label']
+            if left_leaf['is_checked'] == False :
+                left_num = np.count_nonzero(labels == left_leaf['label'])
+                right_num = np.count_nonzero(labels == right_leaf['label'])
+
+                label = left_leaf['label']
+                if left_num < right_num :
+                    label = right_leaf['label']
+                    
+                del current_node['attribute'] 
+                del current_node['value']
+                del current_node['left'] 
+                del current_node['right'] 
+
+                current_node['label'] = label
+                current_node['is_checked'] = False
+
+                original_tree_current_node['left']['is_checked'] = True
+                original_tree_current_node['right']['is_checked'] = True
+
+                return True , original_tree_current_node , current_node 
                 
-            current_node['attribute'] = None
-            current_node['value'] = None
-            current_node['left'] = None
-            current_node['right'] = None
+        else : 
 
-            current_node['lable'] = label
-            current_node['is_cheked'] = False
+            is_modified_left, original_tree_left , modified_tree_left = prune_tree( labels , current_node['left'] )
+            if is_modified_left == True :
+                original_tree_current_node['left'] = original_tree_left
+                current_node['left'] = modified_tree_left
+                return True , original_tree_current_node , current_node
 
-            original_tree_current_node['left']['is_checked'] = True
-            original_tree_current_node['right']['is_checked'] = True
+            is_modified_right, original_tree_right , modified_tree_right = prune_tree(labels, current_node['right'] )
+            if is_modified_right == True :
+                original_tree_current_node['right'] = original_tree_right
+                current_node['right'] = modified_tree_right
+                return True , original_tree_current_node , current_node
 
-            return True , original_tree_current_node , current_node 
-            
-    else : 
-
-        is_modified_left, original_tree_left , modified_tree_left = prune_tree( date , current_node['left'] )
-        if is_modified_left == True :
-            original_tree_current_node['left'] = original_tree_left
-            current_node['left'] = modified_tree_left
-            return True , original_tree_current_node , current_node
-
-        is_modified_right, original_tree_right , modified_tree_right = prune_tree( data , current_node['right'] )
-        if is_modified_right == True :
-            original_tree_current_node['right'] = original_tree_right
-            current_node['right'] = modified_tree_right
-            return True , original_tree_current_node , current_node
-
-        return False , None , None
+    return False , original_tree_current_node , current_node
 
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
@@ -81,12 +83,14 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         original_tree, _ = decision_tree_learning(training_data_set, 0)
         confusion_matrix , recall, precision, F1, classification_rate\
         = evaluate(evaluation_data_set, original_tree)
+        print(classification_rate)
         current_tree = original_tree.copy()
         #prune
         while True:
             flag, current_tree, pruned_tree = prune_tree(labels, current_tree )
             #break if all nodes have been pruned
-            if flag:
+            if not flag:
+                print(index)
                 break
             #evaluate pruned tree
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
@@ -103,6 +107,8 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
         pruned_classification_rate = evaluate(test_data_set, current_tree)
         #store measures
+        classification_rates.append(classification_rate)
+        pruned_classification_rates.append(pruned_classification_rate)
         if index == 0:
             recall_matrix = recall
             precision_matrix = precision
@@ -136,11 +142,11 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     average_classification_rate = np.mean(classification_rates)
     average_confusion_matrix = np.mean(confusion_tensor, axis =0)
 
-    pruned_average_recall = np.mean(recall_matrix, axis=0)
-    pruned_average_precision = np.mean(precision_matrix, axis=0)
-    pruned_average_F1 = np.mean(precision_matrix, axis=0)
-    pruned_average_classification_rate = np.mean(classification_rates)
-    pruned_average_confusion_matrix = np.mean(confusion_tensor, axis =0)
+    pruned_average_recall = np.mean(pruned_recall_matrix, axis=0)
+    pruned_average_precision = np.mean(pruned_precision_matrix, axis=0)
+    pruned_average_F1 = np.mean(pruned_precision_matrix, axis=0)
+    pruned_average_classification_rate = np.mean(pruned_classification_rates)
+    pruned_average_confusion_matrix = np.mean(pruned_confusion_tensor, axis =0)
 
     unpruned_measures =\
     [average_recall, average_precision, average_F1, average_classification_rate]
@@ -269,4 +275,5 @@ if __name__ == '__main__':
     # clean_classification_rate = K_fold_evaluation(clean_data)[0]
     # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
     # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
-    K_fold_pruning_evaluation(noisy_data)
+    unpruned_measures, pruned_measures = K_fold_pruning_evaluation(noisy_data)
+    print(unpruned_measures[3], pruned_measures[3])
