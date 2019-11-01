@@ -6,36 +6,56 @@ import numpy as np
 from decision_tree import decision_tree_learning, import_clean_data,\
         import_noisy_data
 
-def prune_tree(tree, labels):
-    original_tree = tree.copy()
+
+def prune_tree( labels , tree ) : 
+    original_tree_current_node = tree.copy()
     current_node = tree
-    while( True ) :
-        if ('label' in current_node['left']) and ('label' in current_node['right'] ):
-            left_leaf = current_node['left']
-            right_leaf = current_node['right']
-            if left_leaf['is_checked'] == False :
-                left_num = lables.count(left_leaf['label'])
-                right_num = lables.count(right_leaf['label'])
-                label = left_leaf['label']
-                if left_num < right_num :
-                    label = right_leaf['label']
 
-                current_node['attribute'] = None
-                current_node['value'] = None
-                current_node['left'] = None
-                current_node['right'] = None
+    if ('label' in current_node['left']) and ('label' in current_node['right'] ):
+        left_leaf = current_node['left']
+        right_leaf = current_node['right']
+        if left_leaf['is_checked'] == False :
+            left_num = labels.count(left_leaf['label'])
+            right_num = labels.count(right_leaf['label'])
+            label = left_leaf['label']
+            if left_num < right_num :
+                label = right_leaf['label']
+                
+            current_node['attribute'] = None
+            current_node['value'] = None
+            current_node['left'] = None
+            current_node['right'] = None
 
-                current_node['lable'] = label
-                current_node['is_cheked'] = False
+            current_node['lable'] = label
+            current_node['is_cheked'] = False
 
-                original_tree['left']['is_checked'] = True
-                original_tree['right']['is_checked'] = True
+            original_tree_current_node['left']['is_checked'] = True
+            original_tree_current_node['right']['is_checked'] = True
+
+            return True , original_tree_current_node , current_node 
+            
+    else : 
+
+        is_modified_left, original_tree_left , modified_tree_left = prune_tree( date , current_node['left'] )
+        if is_modified_left == True :
+            original_tree_current_node['left'] = original_tree_left
+            current_node['left'] = modified_tree_left
+            return True , original_tree_current_node , current_node
+
+        is_modified_right, original_tree_right , modified_tree_right = prune_tree( data , current_node['right'] )
+        if is_modified_right == True :
+            original_tree_current_node['right'] = original_tree_right
+            current_node['right'] = modified_tree_right
+            return True , original_tree_current_node , current_node
+
+        return False , None , None
 
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     np.random.shuffle(data)
     folds = np.split(data, nr_of_folds)
     test_data_set = folds[0]
+
     training_validation_data_set = np.concatenate(folds[1:])
     #initiate arrays to store results
     recall_matrix = []
@@ -49,10 +69,11 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     pruned_F1_matrix = []
     pruned_classification_rates = []
     pruned_confusion_tensor = []
-
+    #split up dataset    
+    folds = np.split(training_validation_data_set, nr_of_folds)
+    
     for index in range(nr_of_folds):
-        #split up dataset
-        folds = np.split(training_validation_data_set, nr_of_folds)
+
         evaluation_data_set = folds[index]
         training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
         labels = training_data_set[:,-1]
@@ -63,7 +84,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         current_tree = original_tree.copy()
         #prune
         while True:
-            pruned_tree, flag = prune_tree(current_tree, labels)
+            flag, current_tree, pruned_tree = prune_tree(labels, current_tree )
             #break if all nodes have been pruned
             if flag:
                 break
