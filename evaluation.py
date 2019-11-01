@@ -1,76 +1,84 @@
 '''
 10-fold validation of the decision tree
 '''
-import numpy as np
+from decision_tree import decision_tree_learning
+from util import *
 
-from decision_tree import decision_tree_learning, import_clean_data,\
-        import_noisy_data
-
-
-def prune_tree( labels , tree ) : 
+def prune_tree(labels, tree): 
+    ''' prune one parent of 2 leaves
+        return: is_pruned, original tree, pruned tree'''
     original_tree_current_node = tree.copy()
-    current_node = tree
-    if 'left' in current_node and current_node['left'] != None: 
-        if (  'label' in current_node['left']) and ('label' in current_node['right'] ):
-            left_leaf = current_node['left']
-            right_leaf = current_node['right']
+    current_node = tree 
 
-            if left_leaf['is_checked'] == False :
-                left_num = np.count_nonzero(labels == left_leaf['label'])
-                right_num = np.count_nonzero(labels == right_leaf['label'])
+    # if current_node is a leaf
+    if 'label' in current_node:
+        return False, original_tree_current_node, current_node
 
-                label = left_leaf['label']
-                if left_num < right_num :
-                    label = right_leaf['label']
-                    
-                del current_node['attribute'] 
-                del current_node['value']
-                del current_node['left'] 
-                del current_node['right'] 
+    # if current_node is a parent of 2 unchecked leaves
+    if 'label' in current_node['left'] and 'label' in current_node['right'] and current_node['left']['is_checked'] == False:
+        left_leaf = current_node['left']
+        right_leaf = current_node['right']
 
-                current_node['label'] = label
-                current_node['is_checked'] = False
+        left_label = left_leaf['label']
+        right_label = right_leaf['label']
 
-                original_tree_current_node['left']['is_checked'] = True
-                original_tree_current_node['right']['is_checked'] = True
+        left_num = np.count_nonzero(labels == left_label)
+        right_num = np.count_nonzero(labels == right_label)
 
-                return True , original_tree_current_node , current_node 
-                
-        else : 
+        # TODO
+        # change label according to training dataset
+        label = left_label if left_num < right_num else right_label
+            
+        # change current node to a leaf
+        current_node = {'label': label, 'is_checked': False}
 
-            is_modified_left, original_tree_left , modified_tree_left = prune_tree( labels , current_node['left'] )
-            if is_modified_left == True :
-                original_tree_current_node['left'] = original_tree_left
-                current_node['left'] = modified_tree_left
-                return True , original_tree_current_node , current_node
+        # set original tree's children is_checked to True
+        original_tree_current_node['left']['is_checked'] = True
+        original_tree_current_node['right']['is_checked'] = True
 
-            is_modified_right, original_tree_right , modified_tree_right = prune_tree(labels, current_node['right'] )
-            if is_modified_right == True :
-                original_tree_current_node['right'] = original_tree_right
-                current_node['right'] = modified_tree_right
-                return True , original_tree_current_node , current_node
+        return True, original_tree_current_node, current_node 
+    
+    # a parent with at least one child checked
+    else:
+        # prune left tree
+        is_modified_left, original_tree_left, modified_tree_left = prune_tree( labels , current_node['left'] )
+        # if pruning is successful, return
+        if is_modified_left == True:
+            original_tree_current_node['left'] = original_tree_left
+            current_node['left'] = modified_tree_left
+            return True, original_tree_current_node, current_node
 
-    return False , original_tree_current_node , current_node
+        # prune right tree
+        is_modified_right, original_tree_right, modified_tree_right = prune_tree(labels, current_node['right'] )
+        if is_modified_right == True :
+            original_tree_current_node['right'] = original_tree_right
+            current_node['right'] = modified_tree_right
+            return True, original_tree_current_node, current_node
+
+    # last case: if is a parent with 2 children checked
+    return False, original_tree_current_node, current_node
 
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     np.random.shuffle(data)
-    folds = np.split(data, nr_of_folds)
-    test_data_set = folds[0]
 
-    training_validation_data_set = np.concatenate(folds[1:])
+    data_size = int(len(data)/nr_of_folds)
+    test_data_set = data[:data_size]
+    training_validation_data_set = data[data_size:]
+
     #initiate arrays to store results
     recall_matrix = []
     precision_matrix = []
     F1_matrix = []
     classification_rates = []
-    confusion_tensor = [] #patent pending
+    confusion_tensor = [] # patent pending by Olle
 
     pruned_recall_matrix = []
     pruned_precision_matrix = []
     pruned_F1_matrix = []
     pruned_classification_rates = []
     pruned_confusion_tensor = []
+
     #split up dataset    
     folds = np.split(training_validation_data_set, nr_of_folds)
     
