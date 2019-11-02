@@ -4,11 +4,13 @@
 from decision_tree import decision_tree_learning
 from util import *
 
-def prune_tree(labels, tree): 
+import copy
+
+def prune_tree(labels, tree):
     ''' prune one parent of 2 leaves
         return: is_pruned, original tree, pruned tree'''
     original_tree_current_node = tree.copy()
-    current_node = tree 
+    current_node = tree
 
     # if current_node is a leaf
     if 'label' in current_node:
@@ -25,10 +27,9 @@ def prune_tree(labels, tree):
         left_num = np.count_nonzero(labels == left_label)
         right_num = np.count_nonzero(labels == right_label)
 
-        # TODO
         # change label according to training dataset
-        label = left_label if left_num < right_num else right_label
-            
+        label = left_label if left_num > right_num else right_label
+
         # change current node to a leaf
         current_node = {'label': label, 'is_checked': False}
 
@@ -36,8 +37,8 @@ def prune_tree(labels, tree):
         original_tree_current_node['left']['is_checked'] = True
         original_tree_current_node['right']['is_checked'] = True
 
-        return True, original_tree_current_node, current_node 
-    
+        return True, original_tree_current_node, current_node
+
     # a parent with at least one child checked
     else:
         # prune left tree
@@ -61,106 +62,124 @@ def prune_tree(labels, tree):
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     np.random.shuffle(data)
+    folds1 = np.split(data, nr_of_folds)
+    for i in range(nr_of_folds):
+        #print status###########################################
+        print ('#'*70)
+        print ('#'*70)
+        print('USING FOLD {} AS THE TEST DATA'.format(i + 1))
+        print ('-'*70)
+        ########################################################
+        test_data_set = folds1[i]
+        training_validation_data_set_folds =\
+        [index for index in range(nr_of_folds) if index != i]
+        training_validation_data_set = np.concatenate(folds1[0:i] + folds1[i + 1:])
 
-    data_size = int(len(data)/nr_of_folds)
-    test_data_set = data[:data_size]
-    training_validation_data_set = data[data_size:]
+        #initiate arrays to store results
+        recall_matrix = []
+        precision_matrix = []
+        F1_matrix = []
+        classification_rates = []
+        confusion_tensor = [] # patent pending by Olle
 
-    #initiate arrays to store results
-    recall_matrix = []
-    precision_matrix = []
-    F1_matrix = []
-    classification_rates = []
-    confusion_tensor = [] # patent pending by Olle
+        pruned_recall_matrix = []
+        pruned_precision_matrix = []
+        pruned_F1_matrix = []
+        pruned_classification_rates = []
+        pruned_confusion_tensor = []
 
-    pruned_recall_matrix = []
-    pruned_precision_matrix = []
-    pruned_F1_matrix = []
-    pruned_classification_rates = []
-    pruned_confusion_tensor = []
+        #split up dataset
+        folds = np.split(training_validation_data_set, nr_of_folds - 1)
 
-    #split up dataset    
-    folds = np.split(training_validation_data_set, nr_of_folds)
-    
-    for index in range(nr_of_folds):
+        for index in range(nr_of_folds - 1):
+            training_data_set_folds = training_validation_data_set_folds
+            [i for i in training_validation_data_set_folds if i != index]
 
-        evaluation_data_set = folds[index]
-        training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
-        labels = training_data_set[:,-1]
-        # train and evaluate the unpurned tree
-        original_tree, _ = decision_tree_learning(training_data_set, 0)
-        confusion_matrix , recall, precision, F1, classification_rate\
-        = evaluate(evaluation_data_set, original_tree)
-        print(classification_rate)
-        current_tree = original_tree.copy()
-        #prune
-        while True:
-            flag, current_tree, pruned_tree = prune_tree(labels, current_tree )
-            #break if all nodes have been pruned
-            if not flag:
-                print(index)
-                break
-            #evaluate pruned tree
+            print('WITH FOLD {} AS THE VALIDATION DATA'.format(training_validation_data_set_folds[index]  + 1))
+            print('USING FOLDS {} AS THE TRAINING DATA'.format(training_data_set_folds))
+
+            evaluation_data_set = folds[index]
+            training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
+            labels = training_data_set[:,-1]
+            # train and evaluate the unpurned tree
+            original_tree, _ = decision_tree_learning(training_data_set, 0)
+            confusion_matrix , recall, precision, F1, classification_rate\
+            = evaluate(evaluation_data_set, original_tree)
+            print('The classicfication for original tree on evaluation data: {}'.format(classification_rate))
+            current_tree = copy.deepcopy(original_tree)
+            #prune
+            while True:
+                flag, current_tree, pruned_tree = prune_tree(labels, current_tree)
+                #break if all nodes have been pruned
+                if not flag:
+                    break
+                #evaluate pruned tree
+                pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
+                pruned_classification_rate = evaluate(evaluation_data_set, pruned_tree)
+
+                #check if better
+                if pruned_classification_rate > classification_rate:
+                    current_tree = pruned_tree
+                    classification_rate = pruned_classification_rate
+
+            print(current_tree)
+            #evaluate unpruned and best pruned tree on test dataset
+            confusion_matrix , recall, precision, F1, classification_rate\
+            = evaluate(test_data_set, original_tree)
+            print('The classicfication for original tree on test data: {}'.format(classification_rate))
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
-            pruned_classification_rate = evaluate(evaluation_data_set, pruned_tree)
-            #check if better
-            if pruned_classification_rate >= classification_rate:
-                current_tree = pruned_tree
-                classification_rate = pruned_classification_rate
+            pruned_classification_rate = evaluate(evaluation_data_set, current_tree)
+            print('The classicfication for pruned tree on evaluation data: {}'.format(pruned_classification_rate))
+            pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
+            pruned_classification_rate = evaluate(test_data_set, current_tree)
+            print('The classicfication for pruned tree on test data: {}'.format(pruned_classification_rate))
+            #store measures
+            classification_rates.append(classification_rate)
+            pruned_classification_rates.append(pruned_classification_rate)
+            if index == 0:
+                recall_matrix = recall
+                precision_matrix = precision
+                F1_matrix = F1
+                confusion_tensor = confusion_matrix
+
+                pruned_recall_matrix = pruned_recall
+                pruned_precision_matrix = pruned_precision
+                pruned_F1_matrix = pruned_F1
+                pruned_confusion_tensor = pruned_confusion_matrix
+            else:
+                recall_matrix = np.vstack((recall_matrix, recall))
+                precision_matrix = np.vstack((precision_matrix, precision))
+                F1_matrix = np.vstack((F1_matrix, F1))
+                confusion_tensor = np.vstack((confusion_tensor, confusion_matrix))
+
+                pruned_recall_matrix =\
+                np.vstack((pruned_recall_matrix, pruned_recall))
+                pruned_precision_matrix =\
+                np.vstack((pruned_precision_matrix, pruned_precision))
+                pruned_F1_matrix =\
+                np.vstack((pruned_F1_matrix, pruned_F1))
+                pruned_confusion_tensor =\
+                np.vstack((pruned_confusion_tensor, pruned_confusion_matrix))
 
 
-        #evaluate unpruned and best pruned trees on test dataset
-        confusion_matrix , recall, precision, F1, classification_rate\
-        = evaluate(test_data_set, original_tree)
-        pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
-        pruned_classification_rate = evaluate(test_data_set, current_tree)
-        #store measures
-        classification_rates.append(classification_rate)
-        pruned_classification_rates.append(pruned_classification_rate)
-        if index == 0:
-            recall_matrix = recall
-            precision_matrix = precision
-            F1_matrix = F1
-            confusion_tensor = confusion_matrix
+        #calculate mean of evaluation measures
+        average_recall = np.mean(recall_matrix, axis=0)
+        average_precision = np.mean(precision_matrix, axis=0)
+        average_F1 = np.mean(precision_matrix, axis=0)
+        average_classification_rate = np.mean(classification_rates)
+        average_confusion_matrix = np.mean(confusion_tensor, axis =0)
 
-            pruned_recall_matrix = pruned_recall
-            pruned_precision_matrix = pruned_precision
-            pruned_F1_matrix = pruned_F1
-            pruned_confusion_tensor = pruned_confusion_matrix
-        else:
-            recall_matrix = np.vstack((recall_matrix, recall))
-            precision_matrix = np.vstack((precision_matrix, precision))
-            F1_matrix = np.vstack((F1_matrix, F1))
-            confusion_tensor = np.vstack((confusion_tensor, confusion_matrix))
+        pruned_average_recall = np.mean(pruned_recall_matrix, axis=0)
+        pruned_average_precision = np.mean(pruned_precision_matrix, axis=0)
+        pruned_average_F1 = np.mean(pruned_precision_matrix, axis=0)
+        pruned_average_classification_rate = np.mean(pruned_classification_rates)
+        pruned_average_confusion_matrix = np.mean(pruned_confusion_tensor, axis =0)
 
-            pruned_recall_matrix =\
-            np.vstack((pruned_recall_matrix, pruned_recall))
-            pruned_precision_matrix =\
-            np.vstack((pruned_precision_matrix, pruned_precision))
-            pruned_F1_matrix =\
-            np.vstack((pruned_F1_matrix, pruned_F1))
-            pruned_confusion_tensor =\
-            np.vstack((pruned_confusion_tensor, pruned_confusion_matrix))
-
-
-    #calculate mean of evaluation measures
-    average_recall = np.mean(recall_matrix, axis=0)
-    average_precision = np.mean(precision_matrix, axis=0)
-    average_F1 = np.mean(precision_matrix, axis=0)
-    average_classification_rate = np.mean(classification_rates)
-    average_confusion_matrix = np.mean(confusion_tensor, axis =0)
-
-    pruned_average_recall = np.mean(pruned_recall_matrix, axis=0)
-    pruned_average_precision = np.mean(pruned_precision_matrix, axis=0)
-    pruned_average_F1 = np.mean(pruned_precision_matrix, axis=0)
-    pruned_average_classification_rate = np.mean(pruned_classification_rates)
-    pruned_average_confusion_matrix = np.mean(pruned_confusion_tensor, axis =0)
-
-    unpruned_measures =\
-    [average_recall, average_precision, average_F1, average_classification_rate]
-    pruned_measures =\
-    [pruned_average_recall, pruned_average_precision, pruned_average_F1,\
-    pruned_average_classification_rate]
+        unpruned_measures =\
+        [average_recall, average_precision, average_F1, average_classification_rate]
+        pruned_measures =\
+        [pruned_average_recall, pruned_average_precision, pruned_average_F1,\
+        pruned_average_classification_rate]
 
     return unpruned_measures, pruned_measures
 
