@@ -9,7 +9,7 @@ def H(labels):
 	return -sum(probs * np.log2(probs))
 
 def gain(dataset, left_data, right_data):
-	''' return gain value of a feature according to left and right data'''
+	''' return gain value of a attribute according to left and right data'''
 	len_all = len(dataset)
 	len_left = len(left_data)
 	len_right = len(right_data)
@@ -18,36 +18,37 @@ def gain(dataset, left_data, right_data):
 
 	return H(dataset) - remainder
 
-def feature_gain(dataset, index):
-	''' return: (max gain, value) to split a index-th feature
+def attribute_gain(dataset, index):
+	''' return: (max gain, value) to split a index-th attribute
 		according to its gain value'''
-	# iterate through each value in feature and compute gain
-	best_feature_split = (-float('inf'), 0, [], []) # best feature gain, best value, left_data, right_data
+	# iterate through each value in attribute and compute gain
+	best_attribute_split = (-float('inf'), 0, [], []) # best attribute gain, best value, left_data, right_data
 	len_data = len(dataset)
 
-	sorted_data = dataset[dataset[:,index].argsort()] # sort data by feature
-	feature_values = np.unique(dataset[:,index])
+	sorted_data = dataset[dataset[:,index].argsort()] # sort data by attribute
+	attribute_values = np.unique(dataset[:,index])
 
 	# split data to left and right, and find the best index to split
-	for val in feature_values:
+	for val in attribute_values:
 		left_data = sorted_data[np.where(sorted_data[:,index] < val)]
 		right_data = sorted_data[np.where(sorted_data[:,index] >= val)]
 
-		feature_gain = gain(sorted_data, left_data, right_data)
+		attribute_gain = gain(sorted_data, left_data, right_data)
 
-		if feature_gain > best_feature_split[0]:
-			best_feature_split = (feature_gain, val, left_data, right_data)
+		if attribute_gain > best_attribute_split[0]:
+			best_attribute_split = (attribute_gain, val, left_data, right_data)
 
-	return best_feature_split
+	return best_attribute_split
 
 def find_split(dataset):
-	''' return: best feature, value, left data and right data for the best split'''
+	''' return: best attribute, value, left data and right data for the best split'''
 	best_gain = -float('inf')
-	best_split = (0, 0, [], []) # best feature, best value, left_data, right_data
+	best_split = (0, 0, [], []) # best attribute, best value, left_data, right_data
 	label = dataset[:,-1]
 
+	# loop all attribute to find the best attribute to split
 	for att_i in range(len(dataset[0])-1):
-		gain, value, left_data, right_data = feature_gain(dataset, att_i)
+		gain, value, left_data, right_data = attribute_gain(dataset, att_i)
 		if gain > best_gain:
 			best_gain = gain
 			best_split = (att_i, value, left_data, right_data)
@@ -61,7 +62,7 @@ def decision_tree_learning(dataset, depth=0):
 		return{'label': int(dataset[:,-1][0]), 'is_checked' : False}, depth
 
 	else:
-		# find feature and value to split the dataset
+		# find attribute and value to split the dataset
 		attribute, value, left_data, right_data = find_split(dataset)
 
 		# recursively calls the fucntion on left and right node
