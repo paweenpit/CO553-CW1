@@ -5,6 +5,8 @@ from decision_tree import decision_tree_learning
 from util import *
 from visualize import *
 import copy
+
+
 def prune_tree( data , tree):
     ''' prune one parent of 2 leaves
         return: is_pruned, original tree, pruned tree'''
@@ -65,21 +67,32 @@ def prune_tree( data , tree):
 
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
+    #initiate arrays to store avergae data for every fold
+    all_folds_average_recall = []
+    all_folds_average_precision = []
+    all_folds_average_F1 = []
+    all_folds_average_classification_rates = []
+
+    pruned_all_folds_average_recall = []
+    pruned_all_folds_average_precision = []
+    pruned_all_folds_average_F1 = []
+    pruned_all_folds_average_classification = []
+
     np.random.shuffle(data)
     folds_split_1 = np.split(data, nr_of_folds)
     for i in range(nr_of_folds):
         ###################print status message#################
         print ('#'*70)
-        print ('#'*70)
         print('USING FOLD {} AS THE TEST DATA'.format(i + 1))
-        print ('-'*70)
+        print ('#'*70)
         ########################################################
         test_data_set = folds_split_1[i]
         training_validation_data_set_folds =\
         [index for index in range(nr_of_folds) if index != i]
-        training_validation_data_set = np.concatenate(folds_split_1[0:i] + folds_split_1[i + 1:])
+        training_validation_data_set =\
+        np.concatenate(folds_split_1[0:i] + folds_split_1[i + 1:])
 
-        #initiate arrays to store results
+        #initiate arrays to store results for this fold
         recall_matrix = []
         precision_matrix = []
         F1_matrix = []
@@ -96,26 +109,28 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         folds_split_2 = np.split(training_validation_data_set, nr_of_folds - 1)
 
         for index in range(nr_of_folds - 1):
-            # training_data_set_folds = training_validation_data_set_folds
-            # [j+2 for j in training_validation_data_set_folds if j != index]
-            print(training_validation_data_set_folds)
-
-            print('WITH FOLD {} AS THE VALIDATION DATA'.format(training_validation_data_set_folds[index]  + 1))
-            # print('TRAINING TREE ON FOLDS {} ... '.format(training_data_set_folds))
+            ###################print status message#################
+            print('WITH FOLD {} AS THE VALIDATION DATA'\
+            .format(training_validation_data_set_folds[index]  + 1))
+            print('TRAINING TREE ON REMAINING FOLDS...')
+            ########################################################
 
             evaluation_data_set = folds_split_2[index]
-            training_data_set = np.concatenate(folds_split_2[0:index] + folds_split_2[index + 1:])
+            training_data_set =\
+            np.concatenate(folds_split_2[0:index] + folds_split_2[index + 1:])
             # train and evaluate the unpurned tree
 
             original_tree, _ = decision_tree_learning(training_data_set, 0)
             confusion_matrix , recall, precision, F1, classification_rate\
             = evaluate(evaluation_data_set, original_tree)
+            ###################print status message#################
+            print ("Tree depth:", get_depth(original_tree))
             print('The validation score of the trained tree: {}'.format(classification_rate))
+            ########################################################
             current_tree = copy.deepcopy(original_tree)
-            print ( "original depth : " , get_depth(current_tree) )  
+
             #prune
             print('PRUNING TREE...')
-
             while True:
                 flag, current_tree, pruned_tree = prune_tree(training_data_set, current_tree)
                 #break if all nodes have been pruned
@@ -129,21 +144,27 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
                 if pruned_classification_rate >= classification_rate:
                     current_tree = pruned_tree
                     classification_rate = pruned_classification_rate
-            print ( "depth : " , get_depth(current_tree) )        
+
+
             pruned_trees.append(current_tree)
 
             #evaluate unpruned and best pruned tree on test dataset
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
             pruned_classification_rate = evaluate(evaluation_data_set, current_tree)
+            ###################print status message#################
+            print ("Pruned tree depth:", get_depth(current_tree) )
             print('The validation score for the best pruned tree: {}'.format(pruned_classification_rate))
+            print('TESTING TREES ON TEST DATA SET...')
+            ########################################################
             confusion_matrix , recall, precision, F1, classification_rate\
             = evaluate(test_data_set, original_tree)
-            print('TESTING TREES ON TEST DATA SET...')
-            print('The test score of the original tree: {}'.format(classification_rate))
-
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
             pruned_classification_rate = evaluate(test_data_set, current_tree)
-            print('The test score for pruned tree: {}'.format(pruned_classification_rate))
+            ###################print status message#################
+            print('The test score of the original tree: {}'.format(classification_rate))
+            print('The test score for the pruned tree: {}'.format(pruned_classification_rate))
+            print ('-'*70)
+            ########################################################
             #store measures
             classification_rates.append(classification_rate)
             pruned_classification_rates.append(pruned_classification_rate)
@@ -171,7 +192,6 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
                 np.vstack((pruned_F1_matrix, pruned_F1))
                 pruned_confusion_tensor =\
                 np.vstack((pruned_confusion_tensor, pruned_confusion_matrix))
-            print('-'*70)
 
 
         #calculate mean of evaluation measures
@@ -187,13 +207,56 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         pruned_average_classification_rate = np.mean(pruned_classification_rates)
         pruned_average_confusion_matrix = np.mean(pruned_confusion_tensor, axis =0)
 
-        unpruned_measures =\
-        [average_recall, average_precision, average_F1, average_classification_rate]
-        pruned_measures =\
-        [pruned_average_recall, pruned_average_precision, pruned_average_F1,\
-        pruned_average_classification_rate]
+        all_folds_average_classification_rates.append(average_classification_rate)
+        pruned_all_folds_average_classification.append(pruned_average_classification_rate)
 
-    return unpruned_measures, pruned_measures , pruned_trees
+        if i == 0:
+            all_folds_average_recall = average_recall
+            all_folds_average_precision = average_precision
+            all_folds_average_F1 = average_F1
+
+            pruned_all_folds_average_recall = pruned_average_recall
+            pruned_all_folds_average_precision = pruned_average_precision
+            pruned_all_folds_average_F1 = pruned_average_F1
+        else:
+            all_folds_average_recall =\
+            np.vstack((all_folds_average_recall, average_recall))
+            all_folds_average_precision =\
+            np.vstack((all_folds_average_precision, average_precision))
+            all_folds_average_F1 =\
+            np.vstack((all_folds_average_F1, average_F1))
+
+            pruned_all_folds_average_recall =\
+            np.vstack((pruned_all_folds_average_recall, pruned_average_recall))
+            pruned_all_folds_average_precision =\
+            np.vstack((pruned_all_folds_average_precision, pruned_average_precision))
+            pruned_all_folds_average_F1 =\
+            np.vstack((pruned_all_folds_average_F1 , pruned_average_F1))
+
+    #calculate mean of evaluation measures across all folds
+    average_recall = np.mean(all_folds_average_recall, axis=0)
+    average_precision = np.mean(all_folds_average_precision, axis=0)
+    average_F1 = np.mean(all_folds_average_F1, axis=0)
+    average_classification_rate = np.mean(all_folds_average_classification_rates)
+
+    pruned_average_recall = np.mean(pruned_all_folds_average_recall, axis=0)
+    pruned_average_precision = np.mean(pruned_all_folds_average_precision, axis=0)
+    pruned_average_F1 = np.mean(pruned_all_folds_average_F1, axis=0)
+    pruned_average_classification_rate = np.mean(pruned_all_folds_average_classification)
+
+    measures =\
+    [average_classification_rate, average_recall, average_precision, average_F1]
+    pruned_measures =\
+    [pruned_average_classification_rate, pruned_average_recall,\
+    pruned_average_precision, pruned_average_F1]
+    improvment = pruned_average_classification_rate - average_classification_rate
+
+
+    print('Average test score for unpruned trees: {}'.format(average_classification_rate))
+    print('Average test score for pruned trees: {}'.format(pruned_average_classification_rate))
+    print('Pruning improved the average test score by {}%'.format(improvment*100))
+
+    return measures, pruned_measures, pruned_trees
 
 
 def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
@@ -292,8 +355,12 @@ def metrics(confusion_matrix):
     for label in range(num_classes):
         # recall = true positive / sum of all predicted positive
         recall[label] = confusion_matrix[label,label]/np.sum(confusion_matrix[label,:])
+        if recall[label] == 0:
+            print('zero recall')
         # precision is true positive / sum of actual positive
         precision[label] = confusion_matrix[label,label]/np.sum(confusion_matrix[:,label])
+        if precision[label] == 0:
+            print('zero presicion')
 
         F1[label] = 2*(precision[label]*recall[label])/(precision[label] + recall[label])
 
@@ -307,17 +374,6 @@ def metrics(confusion_matrix):
     return recall, precision, F1, classification_rate
 
 
-test_data = np.array([
-    [1,1,1,1,1,2],
-    [1,1,1,2,2,2],
-    [3,3,2,2,2,2],
-    [3,2,1,1,1,1],
-    [4,4,1,3,4,4],
-    [1,1,2,3,4,4],
-    [3,2,3,5,5,7],
-    [5,6,3,2,7,7]
-])
-
 if __name__ == '__main__':
     clean_data = import_clean_data()
     noisy_data = import_noisy_data()
@@ -325,4 +381,3 @@ if __name__ == '__main__':
     # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
     # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
     unpruned_measures, pruned_measures , pruned_trees = K_fold_pruning_evaluation(noisy_data)
-    print(unpruned_measures[3], pruned_measures[3])
