@@ -17,21 +17,21 @@ def deepcopy(data):
     if isinstance(data, dict):
         result = {}
         for key, value in data.items():
-            result[key] = my_deepcopy(value)
+            result[key] = deepcopy(value)
 
         assert id(result) != id(data)
 
     elif isinstance(data, list):
         result = []
         for item in data:
-            result.append(my_deepcopy(item))
+            result.append(deepcopy(item))
 
         assert id(result) != id(data)
 
     elif isinstance(data, tuple):
         aux = []
         for item in data:
-            aux.append(my_deepcopy(item))
+            aux.append(deepcopy(item))
         result = tuple(aux)
 
         assert id(result) != id(data)
