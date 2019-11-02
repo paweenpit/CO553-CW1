@@ -28,6 +28,7 @@ def feature_gain(dataset, index):
 	sorted_data = dataset[dataset[:,index].argsort()] # sort data by feature
 	feature_values = np.unique(dataset[:,index])
 
+	# split data to left and right, and find the best index to split
 	for val in feature_values:
 		left_data = sorted_data[np.where(sorted_data[:,index] < val)]
 		right_data = sorted_data[np.where(sorted_data[:,index] >= val)]
