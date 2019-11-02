@@ -4,12 +4,12 @@
 from decision_tree import decision_tree_learning
 from util import *
 from visualize import *
-import copy
+
 def prune_tree( data , tree):
     ''' prune one parent of 2 leaves
         return: is_pruned, original tree, pruned tree'''
     labels = data[:,-1]
-    original_tree_current_node = tree.copy()
+    original_tree_current_node = deepcopy(tree)
     current_node = tree
 
     # if current_node is a leaf
@@ -111,7 +111,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
             confusion_matrix , recall, precision, F1, classification_rate\
             = evaluate(evaluation_data_set, original_tree)
             print('The validation score of the trained tree: {}'.format(classification_rate))
-            current_tree = copy.deepcopy(original_tree)
+            current_tree = deepcopy(original_tree)
             print ( "original depth : " , get_depth(current_tree) )  
             #prune
             print('PRUNING TREE...')
