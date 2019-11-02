@@ -4,7 +4,6 @@
 from decision_tree import decision_tree_learning
 from util import *
 
-import copy
 
 def prune_tree(labels, tree):
     ''' prune one parent of 2 leaves
@@ -62,18 +61,18 @@ def prune_tree(labels, tree):
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     np.random.shuffle(data)
-    folds1 = np.split(data, nr_of_folds)
+    folds_split_1 = np.split(data, nr_of_folds)
     for i in range(nr_of_folds):
-        #print status###########################################
+        ###################print status message#################
         print ('#'*70)
         print ('#'*70)
         print('USING FOLD {} AS THE TEST DATA'.format(i + 1))
         print ('-'*70)
         ########################################################
-        test_data_set = folds1[i]
+        test_data_set = folds_split_1[i]
         training_validation_data_set_folds =\
         [index for index in range(nr_of_folds) if index != i]
-        training_validation_data_set = np.concatenate(folds1[0:i] + folds1[i + 1:])
+        training_validation_data_set = np.concatenate(folds_split_1[0:i] + folds_split_1[i + 1:])
 
         #initiate arrays to store results
         recall_matrix = []
@@ -89,25 +88,27 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         pruned_confusion_tensor = []
 
         #split up dataset
-        folds = np.split(training_validation_data_set, nr_of_folds - 1)
+        folds_split_2 = np.split(training_validation_data_set, nr_of_folds - 1)
 
         for index in range(nr_of_folds - 1):
-            training_data_set_folds = training_validation_data_set_folds
-            [i for i in training_validation_data_set_folds if i != index]
+            # training_data_set_folds = training_validation_data_set_folds
+            # [j+2 for j in training_validation_data_set_folds if j != index]
+            print(training_validation_data_set_folds)
 
             print('WITH FOLD {} AS THE VALIDATION DATA'.format(training_validation_data_set_folds[index]  + 1))
-            print('USING FOLDS {} AS THE TRAINING DATA'.format(training_data_set_folds))
+            # print('TRAINING TREE ON FOLDS {} ... '.format(training_data_set_folds))
 
-            evaluation_data_set = folds[index]
-            training_data_set = np.concatenate(folds[0:index] + folds[index + 1:])
+            evaluation_data_set = folds_split_2[index]
+            training_data_set = np.concatenate(folds_split_2[0:index] + folds_split_2[index + 1:])
             labels = training_data_set[:,-1]
             # train and evaluate the unpurned tree
             original_tree, _ = decision_tree_learning(training_data_set, 0)
             confusion_matrix , recall, precision, F1, classification_rate\
             = evaluate(evaluation_data_set, original_tree)
-            print('The classicfication for original tree on evaluation data: {}'.format(classification_rate))
-            current_tree = copy.deepcopy(original_tree)
+            print('The validation score of the trained tree: {}'.format(classification_rate))
+            current_tree = original_tree.copy()
             #prune
+            print('PRUNING TREE...')
             while True:
                 flag, current_tree, pruned_tree = prune_tree(labels, current_tree)
                 #break if all nodes have been pruned
@@ -122,17 +123,18 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
                     current_tree = pruned_tree
                     classification_rate = pruned_classification_rate
 
-            print(current_tree)
             #evaluate unpruned and best pruned tree on test dataset
-            confusion_matrix , recall, precision, F1, classification_rate\
-            = evaluate(test_data_set, original_tree)
-            print('The classicfication for original tree on test data: {}'.format(classification_rate))
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
             pruned_classification_rate = evaluate(evaluation_data_set, current_tree)
-            print('The classicfication for pruned tree on evaluation data: {}'.format(pruned_classification_rate))
+            print('The validation score for the best pruned tree: {}'.format(pruned_classification_rate))
+            confusion_matrix , recall, precision, F1, classification_rate\
+            = evaluate(test_data_set, original_tree)
+            print('TESTING TREES ON TEST DATA SET...')
+            print('The test score of the original tree: {}'.format(classification_rate))
+
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
             pruned_classification_rate = evaluate(test_data_set, current_tree)
-            print('The classicfication for pruned tree on test data: {}'.format(pruned_classification_rate))
+            print('The test score for pruned tree: {}'.format(pruned_classification_rate))
             #store measures
             classification_rates.append(classification_rate)
             pruned_classification_rates.append(pruned_classification_rate)
@@ -160,6 +162,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
                 np.vstack((pruned_F1_matrix, pruned_F1))
                 pruned_confusion_tensor =\
                 np.vstack((pruned_confusion_tensor, pruned_confusion_matrix))
+            print('-'*70)
 
 
         #calculate mean of evaluation measures
