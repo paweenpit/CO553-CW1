@@ -3,11 +3,12 @@
 '''
 from decision_tree import decision_tree_learning
 from util import *
-
-
-def prune_tree(labels, tree):
+from visualize import *
+import copy
+def prune_tree( data , tree):
     ''' prune one parent of 2 leaves
         return: is_pruned, original tree, pruned tree'''
+    labels = data[:,-1]
     original_tree_current_node = tree.copy()
     current_node = tree
 
@@ -16,7 +17,7 @@ def prune_tree(labels, tree):
         return False, original_tree_current_node, current_node
 
     # if current_node is a parent of 2 unchecked leaves
-    if 'label' in current_node['left'] and 'label' in current_node['right'] and current_node['left']['is_checked'] == False:
+    if 'label' in current_node['left'] and 'label' in current_node['right'] and current_node['left']['is_checked'] == False and current_node['right']['is_checked'] == False:
         left_leaf = current_node['left']
         right_leaf = current_node['right']
 
@@ -40,8 +41,11 @@ def prune_tree(labels, tree):
 
     # a parent with at least one child checked
     else:
+        val = current_node['value']
+        attribute = current_node['attribute']
         # prune left tree
-        is_modified_left, original_tree_left, modified_tree_left = prune_tree( labels , current_node['left'] )
+        left_data = data[np.where(data[:,attribute] < val)]
+        is_modified_left, original_tree_left, modified_tree_left = prune_tree( left_data , current_node['left'] )
         # if pruning is successful, return
         if is_modified_left == True:
             original_tree_current_node['left'] = original_tree_left
@@ -49,7 +53,8 @@ def prune_tree(labels, tree):
             return True, original_tree_current_node, current_node
 
         # prune right tree
-        is_modified_right, original_tree_right, modified_tree_right = prune_tree(labels, current_node['right'] )
+        right_data = data[np.where(data[:,attribute] >= val)]
+        is_modified_right, original_tree_right, modified_tree_right = prune_tree( right_data , current_node['right'] )
         if is_modified_right == True :
             original_tree_current_node['right'] = original_tree_right
             current_node['right'] = modified_tree_right
@@ -86,7 +91,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         pruned_F1_matrix = []
         pruned_classification_rates = []
         pruned_confusion_tensor = []
-
+        pruned_trees = []
         #split up dataset
         folds_split_2 = np.split(training_validation_data_set, nr_of_folds - 1)
 
@@ -100,17 +105,19 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
 
             evaluation_data_set = folds_split_2[index]
             training_data_set = np.concatenate(folds_split_2[0:index] + folds_split_2[index + 1:])
-            labels = training_data_set[:,-1]
             # train and evaluate the unpurned tree
+
             original_tree, _ = decision_tree_learning(training_data_set, 0)
             confusion_matrix , recall, precision, F1, classification_rate\
             = evaluate(evaluation_data_set, original_tree)
             print('The validation score of the trained tree: {}'.format(classification_rate))
-            current_tree = original_tree.copy()
+            current_tree = copy.deepcopy(original_tree)
+            print ( "original depth : " , get_depth(current_tree) )  
             #prune
             print('PRUNING TREE...')
+
             while True:
-                flag, current_tree, pruned_tree = prune_tree(labels, current_tree)
+                flag, current_tree, pruned_tree = prune_tree(training_data_set, current_tree)
                 #break if all nodes have been pruned
                 if not flag:
                     break
@@ -119,9 +126,11 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
                 pruned_classification_rate = evaluate(evaluation_data_set, pruned_tree)
 
                 #check if better
-                if pruned_classification_rate > classification_rate:
+                if pruned_classification_rate >= classification_rate:
                     current_tree = pruned_tree
                     classification_rate = pruned_classification_rate
+            print ( "depth : " , get_depth(current_tree) )        
+            pruned_trees.append(current_tree)
 
             #evaluate unpruned and best pruned tree on test dataset
             pruned_confusion_matrix , pruned_recall, pruned_precision, pruned_F1,\
@@ -184,7 +193,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         [pruned_average_recall, pruned_average_precision, pruned_average_F1,\
         pruned_average_classification_rate]
 
-    return unpruned_measures, pruned_measures
+    return unpruned_measures, pruned_measures , pruned_trees
 
 
 def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
@@ -298,6 +307,16 @@ def metrics(confusion_matrix):
     return recall, precision, F1, classification_rate
 
 
+test_data = np.array([
+    [1,1,1,1,1,2],
+    [1,1,1,2,2,2],
+    [3,3,2,2,2,2],
+    [3,2,1,1,1,1],
+    [4,4,1,3,4,4],
+    [1,1,2,3,4,4],
+    [3,2,3,5,5,7],
+    [5,6,3,2,7,7]
+])
 
 if __name__ == '__main__':
     clean_data = import_clean_data()
@@ -305,5 +324,5 @@ if __name__ == '__main__':
     # clean_classification_rate = K_fold_evaluation(clean_data)[0]
     # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
     # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
-    unpruned_measures, pruned_measures = K_fold_pruning_evaluation(noisy_data)
+    unpruned_measures, pruned_measures , pruned_trees = K_fold_pruning_evaluation(noisy_data)
     print(unpruned_measures[3], pruned_measures[3])

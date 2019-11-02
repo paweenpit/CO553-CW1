@@ -70,3 +70,4 @@ def decision_tree_learning(dataset, depth=0):
 		root = {'attribute': attribute, 'value': value, 'left': left_node, 'right': right_node}
 
 		return root, max(left_depth, right_depth)
+

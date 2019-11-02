@@ -6,3 +6,8 @@ def import_clean_data():
 
 def import_noisy_data():
 	return np.loadtxt('./dataset/noisy_dataset.txt')
+
+def get_depth( tree ):
+	if 'label' in tree : 
+		return 0
+	return (max ( get_depth( tree['right'] ) , get_depth(tree['left']) ) + 1)
