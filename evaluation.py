@@ -89,7 +89,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         ###################print status message#################
         print ('#'*70)
         print('USING FOLD {} AS THE TEST DATA'.format(i + 1))
-        print('EVALUATION MEASURE: CLASSIFICATION RATE')
+        print('COMPARISON MEASURE: CLASSIFICATION RATE')
         print ('#'*70)
         training_validation_data_set_folds =\
         [index for index in range(nr_of_folds) if index != i]
@@ -277,6 +277,18 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     .format(round(pruned_average_classification_rate, 3)))
     print('Pruning improved the average test score by {}%'\
     .format(round(improvment*100, 3)))
+    print('Average recall for unpruned trees: {}'\
+    .format(np.round(average_recall, 3)))
+    print('Average precicion for unpruned trees: {}'\
+    .format(np.round(average_precision, 3)))
+    print('Average F1 score for unpruned trees: {}'\
+    .format(np.round(average_F1, 3)))
+    print('Average recall for pruned trees: {}'\
+    .format(np.round(pruned_average_recall, 3)))
+    print('Average precicion for pruned trees: {}'\
+    .format(np.round(pruned_average_precision, 3)))
+    print('Average F1 score for pruned trees: {}'\
+    .format(np.round(pruned_average_F1, 3)))
     #################################################
     return measures, pruned_measures
 

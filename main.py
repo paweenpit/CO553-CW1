@@ -73,5 +73,5 @@ def STEP4():
     K_fold_pruning_evaluation(noisy_data)
 
 if __name__ == '__main__':
-    STEP3()
+    # STEP3()
     STEP4()
