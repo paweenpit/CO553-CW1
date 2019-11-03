@@ -3,6 +3,7 @@
 '''
 from decision_tree import decision_tree_learning
 from util import *
+from copy import deepcopy
 
 def prune_tree(data, tree):
     ''' prune one parent of 2 leaves if possible
