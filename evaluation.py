@@ -68,8 +68,8 @@ def prune_tree(data, tree):
 
 
 def K_fold_pruning_evaluation(data, nr_of_folds = 10):
-      ''' perform k-fold cross-validation on pruned tree and unpruned tree
-        return: unpruned measure, pruned measure, a list of all (90) pruned trees'''
+    ''' perform k-fold cross-validation on pruned tree and unpruned tree
+    return: unpruned measure, pruned measure, a list of all (90) pruned trees'''
     #initiate arrays to store average measures across all folds
     all_folds_average_recall = []
     all_folds_average_precision = []
@@ -133,7 +133,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
             .format(classification_rate))
             ########################################################
             #keep a copy of the unpruned tree
-            current_tree = copy.deepcopy(original_tree)
+            current_tree = deepcopy(original_tree)
             #prune
             print('PRUNING TREE...')
             while True:
