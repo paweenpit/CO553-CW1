@@ -3,7 +3,6 @@
 '''
 from decision_tree import decision_tree_learning
 from util import *
-from visualize import *
 
 def prune_tree(data, tree):
     ''' prune one parent of 2 leaves if possible
@@ -173,14 +172,10 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
                 F1_matrix = np.vstack((F1_matrix, F1))
                 confusion_tensor = np.vstack((confusion_tensor, confusion_matrix))
 
-                pruned_recall_matrix =\
-                np.vstack((pruned_recall_matrix, pruned_recall))
-                pruned_precision_matrix =\
-                np.vstack((pruned_precision_matrix, pruned_precision))
-                pruned_F1_matrix =\
-                np.vstack((pruned_F1_matrix, pruned_F1))
-                pruned_confusion_tensor =\
-                np.vstack((pruned_confusion_tensor, pruned_confusion_matrix))
+                pruned_recall_matrix = np.vstack((pruned_recall_matrix, pruned_recall))
+                pruned_precision_matrix = np.vstack((pruned_precision_matrix, pruned_precision))
+                pruned_F1_matrix = np.vstack((pruned_F1_matrix, pruned_F1))
+                pruned_confusion_tensor = np.vstack((pruned_confusion_tensor, pruned_confusion_matrix))
 
             print('-'*70)
 
@@ -303,6 +298,7 @@ def metrics(confusion_matrix):
     for label in range(num_classes):
         # recall = true positive / sum of all predicted positive
         recall[label] = confusion_matrix[label,label]/np.sum(confusion_matrix[label,:])
+
         # precision is true positive / sum of actual positive
         precision[label] = confusion_matrix[label,label]/np.sum(confusion_matrix[:,label])
 
@@ -310,7 +306,7 @@ def metrics(confusion_matrix):
 
     # average_recall = np.mean(recall)
     # average_precision = np.mean(precision)
-    average_precision = np.mean(F1)
+    # average_precision = np.mean(F1)
 
     classification_rate = np.sum(np.diagonal(confusion_matrix))/np.sum(confusion_matrix)
     # classification_error = 1 - classification_rate
