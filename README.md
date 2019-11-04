@@ -16,7 +16,7 @@ This [README.md](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/
 
 ## How to run the code?
 
-After extracting the zip, file navigate to the extracted folder in the directory.
+After extracting the zip file, navigate to the extracted folder in the directory.
 
 To run the code that we used to calculate the result that are in the report, run
 
