@@ -172,8 +172,12 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
             ###################print status message#################
             print('The test score for the original tree: {}'\
             .format(classification_rate))
+            print('Confusion matrix for original tree:')
+            print(confusion_matrix)
             print('The test score for the pruned tree: {}'\
             .format(pruned_classification_rate))
+            print('Confusion matrix for pruned tree:')
+            print(pruned_confusion_matrix)
             print ('-'*70)
             ########################################################
             #store measures
@@ -211,15 +215,13 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
         #calculate average of evaluation measures
         average_recall = np.mean(recall_matrix, axis=0)
         average_precision = np.mean(precision_matrix, axis=0)
-        average_F1 = np.mean(precision_matrix, axis=0)
+        average_F1 = np.mean(F1_matrix, axis=0)
         average_classification_rate = np.mean(classification_rates)
-        # average_confusion_matrix = np.mean(confusion_tensor, axis =0)
 
         pruned_average_recall = np.mean(pruned_recall_matrix, axis=0)
         pruned_average_precision = np.mean(pruned_precision_matrix, axis=0)
-        pruned_average_F1 = np.mean(pruned_precision_matrix, axis=0)
+        pruned_average_F1 = np.mean(pruned_F1_matrix, axis=0)
         pruned_average_classification_rate = np.mean(pruned_classification_rates)
-        # pruned_average_confusion_matrix = np.mean(pruned_confusion_tensor, axis =0)
 
         #store average measures across all folds
         all_folds_average_classification_rates\
@@ -286,13 +288,13 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
     .format(round(improvment*100, 3)))
     print('Average recall for unpruned trees: {}'\
     .format(np.round(average_recall, 3)))
-    print('Average precicion for unpruned trees: {}'\
+    print('Average precision for unpruned trees: {}'\
     .format(np.round(average_precision, 3)))
     print('Average F1 score for unpruned trees: {}'\
     .format(np.round(average_F1, 3)))
     print('Average recall for pruned trees: {}'\
     .format(np.round(pruned_average_recall, 3)))
-    print('Average precicion for pruned trees: {}'\
+    print('Average precision for pruned trees: {}'\
     .format(np.round(pruned_average_precision, 3)))
     print('Average F1 score for pruned trees: {}'\
     .format(np.round(pruned_average_F1, 3)))
@@ -351,7 +353,7 @@ def K_fold_evaluation(data, nr_of_folds = 10, shuffle = True):
     #calculate mean of evaluation measures
     average_recall = np.mean(recall_matrix, axis=0)
     average_precision = np.mean(precision_matrix, axis=0)
-    average_F1 = np.mean(precision_matrix, axis=0)
+    average_F1 = np.mean(F1_matrix, axis=0)
     average_classification_rate = np.mean(classification_rates)
     average_confusion_matrix = np.mean(confusion_tensor, axis =0)
 
@@ -419,9 +421,4 @@ def metrics(confusion_matrix):
 
 
 if __name__ == '__main__':
-    clean_data = import_clean_data()
-    noisy_data = import_noisy_data()
-    # clean_classification_rate = K_fold_evaluation(clean_data)[0]
-    # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
-    # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
-    unpruned_measures, pruned_measures = K_fold_pruning_evaluation(noisy_data)
+    pass
