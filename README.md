@@ -1,6 +1,6 @@
 # CO553 - Intro to Machine Learning CW 1
 
-This README explains how to run the code submitted for the CO553 Intro to Machine Learning coursework 1: Desicion Trees, from the group comprising of Niusha Alavi, Olle Nilsson, Paween Pitimanaaree and Alfred Tingey.
+This [README.md](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/README.md) explains how to run the code submitted for the CO553 Intro to Machine Learning coursework 1: Desicion Trees, from the group comprising of Niusha Alavi, Olle Nilsson, Paween Pitimanaaree and Alfred Tingey.
 
 ## Important Files
 
