@@ -1,58 +1,61 @@
-This file explains how to run the code submitted for the CO553 Intro to Machine Learning coursework 1: desicion trees, from the group comprising of Niusha Alavi, Olle Nilsson, Paween Pitimanaaree and Alfred Tingey.
+# CO553 - Intro to Machine Learning CW 1
+
+This [README.md](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/README.md) explains how to run the code submitted for the CO553 Intro to Machine Learning coursework 1: Desicion Trees, from the group comprising of Niusha Alavi, Olle Nilsson, Paween Pitimanaaree and Alfred Tingey.
+
+## Important Files
+
+- [desicion_tree.py](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/decision_tree.py) contains the implementation of the algorithm for training desicion trees including the decision_tree_learning(dataset, depth) function as asked in the spec.
+
+- [evaluation.py](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/evaluation.py) contains the implementation of crossvalidation and pruning algorithms. including the evaluate(test_db, trained_tree) function as asked in the spec.
+
+- [visualize.py](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/visualize.py) contains the implementation of decision tree visulisation.
+
+- [util.py](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/util.py) is for utilites such as functions for importing data.
+
+- All other files (with .py extention) are setup to run the code to replicate the results in our report and to allow the marker to run our implemetation on other datasets.
 
 
-Which file contains what?
+## How to run the code?
 
-desicion_tree.py contains the implementation of the algorithm for training desicion trees including the decision_tree_learning(dataset, depth) function as asked in the spec.
+After extracting the zip, file navigate to the extracted folder in the directory.
 
-evaluation.py contains the implementation of crossvalidation and pruning algorithms. including the evaluate(test_db, trained_tree) function as asked in the spec.
+To run the code that we used to calculate the result that are in the report, run
 
-visulize.py contains the implementation of decision tree visulisation.
-
-util.py is for utilites such as functions for importing data.
-
-
-All other files(with .py extention) are setup to run the code to replicate the results in our report and to allow the marker to run our implemetation on other datasets.
-
-
-How to run the code?
-After extracting the zip, file navigate to the extracted folder in the directory:
-
-To run the code that we used to calculate the result that are in the report call:
-
+```
 python3 main.py 
+```
 
-in the terminal. This will first run the 10-fold crossvalidation on both clean and noisy datasets and then run the 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end. Note that the dataset is shuffled in a random order each time so results may not match exacly to what's in the report.
-
-
-To run our crossvalidation code on a different dataset:
-
-move the file containg the dataset you wish to run to the extracted folder
-
-open the run_crossvalidation_on_unseen_data.py file in an editor. On line 8 where it says 'unseendata_placeholder.txt' replace this with the name of the file for the dataset you want to run. Then call:
-
-python3 run_crossvalidation_on_unseen_data.py 
-
-in the terminal. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
+This will first run the 10-fold cross-validation on both clean and noisy datasets and then run the 10-fold cross-validation with pruning on the clean and noisy datasets. Results will print in the terminal while it calculates and averages displayed at the end. Note that the dataset is shuffled in a random order each time so results may not match exacly to what's in the report.
 
 
-To run our crossvalidation code with pruning on a different dataset:
+## To run our crossvalidation code on a different dataset:
 
-move the file containg the dataset to the extracted folder
+Move the file containing the dataset you wish to run to the extracted folder. Then run
 
-open the run_pruning_on_unseen_data.py file in an editor. On line 8 where it says 'unseendata_placeholder.txt' replace this with the name of the file for the dataset you want to run. Then call:
+```
+python3 run_crossvalidation_on_unseen_data.py <yourdataset>
+```
 
-python3 run_pruning_on_unseen_data.py 
-
-in the terminal. 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
+Be sure to replace \<yourdataset> with your test dataset. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
 
 
-To run classification on our 'best' tree on dataset:
+## To run our crossvalidation code with pruning on a different dataset:
 
-move the file containg the dataset to the extracted folder
+Move the file containg the dataset to the extracted folder. Then run
 
-open the run_classification.py file in an editor. On line 8 where it says 'unseendata_placeholder.txt' replace this with the name of the file for the dataset you want to run. Then call:
+```
+python3 run_pruning_on_unseen_data.py <yourdataset>
+```
 
-python3 run_classification.py 
+Be sure to replace \<yourdataset> with your test dataset. This will run 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
 
-in the terminal. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
+
+## To run classification on our 'best' tree on dataset:
+
+Move the file containg the dataset to the extracted folder. Then run
+
+```
+python3 run_classification.py <yourdataset>
+```
+
+Be sure to replace \<yourdataset> with your test dataset. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.

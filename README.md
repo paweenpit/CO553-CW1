@@ -32,10 +32,10 @@ This will first run the 10-fold cross-validation on both clean and noisy dataset
 Move the file containing the dataset you wish to run to the extracted folder. Then run
 
 ```
-python3 run_crossvalidation_on_unseen_data.py <yournewdataset>
+python3 run_crossvalidation_on_unseen_data.py <yourdataset>
 ```
 
-Be sure to replace <yournewdataset> with your test dataset. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
+Be sure to replace \<yourdataset> with your test dataset. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
 
 
 ## To run our crossvalidation code with pruning on a different dataset:
@@ -43,10 +43,10 @@ Be sure to replace <yournewdataset> with your test dataset. This will run the 10
 Move the file containg the dataset to the extracted folder. Then run
 
 ```
-python3 run_pruning_on_unseen_data.py <yournewdataset>
+python3 run_pruning_on_unseen_data.py <yourdataset>
 ```
 
-Be sure to replace <yourtestdataset> with your test dataset. This will run 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
+Be sure to replace \<yourdataset> with your test dataset. This will run 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
 
 
 ## To run classification on our 'best' tree on dataset:
@@ -54,7 +54,7 @@ Be sure to replace <yourtestdataset> with your test dataset. This will run 10-fo
 Move the file containg the dataset to the extracted folder. Then run
 
 ```
-python3 run_classification.py <yourtestdataset>
+python3 run_classification.py <yourdataset>
 ```
 
-Be sure to replace <yournewdataset> with your test dataset. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
+Be sure to replace \<yourdataset> with your test dataset. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
