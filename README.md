@@ -16,9 +16,9 @@ This [README.md](https://github.com/paweenpit/CO553-Intro-to-ML-CW1/blob/master/
 
 ## How to run the code?
 
-After extracting the zip, file navigate to the extracted folder in the directory
+After extracting the zip, file navigate to the extracted folder in the directory.
 
-To run the code that we used to calculate the result that are in the report run
+To run the code that we used to calculate the result that are in the report, run
 
 ```
 python3 main.py 
@@ -32,10 +32,10 @@ This will first run the 10-fold cross-validation on both clean and noisy dataset
 Move the file containing the dataset you wish to run to the extracted folder. Then run
 
 ```
-python3 run_crossvalidation_on_unseen_data.py <yournewdataset.txt>
+python3 run_crossvalidation_on_unseen_data.py <yournewdataset>
 ```
 
-Be sure to replace <yournewdataset.txt> with your test dataset. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
+Be sure to replace <yournewdataset> with your test dataset. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
 
 
 ## To run our crossvalidation code with pruning on a different dataset:
@@ -43,10 +43,10 @@ Be sure to replace <yournewdataset.txt> with your test dataset. This will run th
 Move the file containg the dataset to the extracted folder. Then run
 
 ```
-python3 run_pruning_on_unseen_data.py <yournewdataset.txt>
+python3 run_pruning_on_unseen_data.py <yournewdataset>
 ```
 
-Be sure to replace <yournewdataset.txt> with your test dataset. This will run 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
+Be sure to replace <yourtestdataset> with your test dataset. This will run 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
 
 
 ## To run classification on our 'best' tree on dataset:
@@ -54,7 +54,7 @@ Be sure to replace <yournewdataset.txt> with your test dataset. This will run 10
 Move the file containg the dataset to the extracted folder. Then run
 
 ```
-python3 run_classification.py <yourtestdataset.txt>
+python3 run_classification.py <yourtestdataset>
 ```
 
-Be sure to replace <yournewdataset.txt> with your test dataset. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
+Be sure to replace <yournewdataset> with your test dataset. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
