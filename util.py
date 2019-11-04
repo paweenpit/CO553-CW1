@@ -7,6 +7,9 @@ def import_clean_data():
 def import_noisy_data():
 	return np.loadtxt('./dataset/noisy_dataset.txt')
 
+def import_new_data(filename):
+	return np.loadtxt(filename)
+
 def get_depth(tree):
 	if 'label' in tree :
 		return 0
