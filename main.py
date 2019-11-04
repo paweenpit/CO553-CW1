@@ -1,6 +1,5 @@
 from evaluation import *
 
-
 def STEP3():
     """
     This is running the code for the STEP 3 fo the corsework spec which is
@@ -20,6 +19,7 @@ def STEP3():
     average_confusion_matrix,
     trees) =\
     K_fold_evaluation(clean_data)
+    print('DECISION TREE RESULTS ON CLEAN DATA')
     print('Average confusion matrix for clean data:')
     print(np.round(average_confusion_matrix, 0).astype(int))
     print('Average recall per class for clean data: {}'\
@@ -45,6 +45,7 @@ def STEP3():
     average_confusion_matrix,
     trees) =\
     K_fold_evaluation(noisy_data)
+    print('DECISION TREE RESULTS ON NOISY DATA')
     print('Average confusion matrix for noisy data:')
     print(np.round(average_confusion_matrix, 0).astype(int))
     print('Average recall per class for noisy data: {}'\

@@ -18,20 +18,19 @@ def gain(dataset, left_data, right_data):
 
 	return H(dataset) - remainder
 
-def attribute_gain(dataset, index):
-	''' return: (max gain, value) to split a index-th attribute
+def attribute_gain(dataset, att_index):
+	''' return: (max gain, value) to split an index-th attribute
 		according to its gain value'''
 	# iterate through each value in attribute and compute gain
 	best_attribute_split = (-float('inf'), 0, [], []) # best attribute gain, best value, left_data, right_data
-	len_data = len(dataset)
 
-	sorted_data = dataset[dataset[:,index].argsort()] # sort data by attribute
-	attribute_values = np.unique(dataset[:,index])
+	sorted_data = dataset[dataset[:,att_index].argsort()] # sort data by attribute
+	attribute_values = np.unique(dataset[:,att_index])
 
-	# split data to left and right, and find the best index to split
+	# split data to left and right, and find the best att_index to split
 	for val in attribute_values:
-		left_data = sorted_data[np.where(sorted_data[:,index] < val)]
-		right_data = sorted_data[np.where(sorted_data[:,index] >= val)]
+		left_data = sorted_data[np.where(sorted_data[:,att_index] < val)]
+		right_data = sorted_data[np.where(sorted_data[:,att_index] >= val)]
 
 		attribute_gain = gain(sorted_data, left_data, right_data)
 
@@ -44,7 +43,6 @@ def find_split(dataset):
 	''' return: best attribute, value, left data and right data for the best split'''
 	best_gain = -float('inf')
 	best_split = (0, 0, [], []) # best attribute, best value, left_data, right_data
-	label = dataset[:,-1]
 
 	# loop all attribute to find the best attribute to split
 	for att_i in range(len(dataset[0])-1):

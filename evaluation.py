@@ -418,10 +418,10 @@ def metrics(confusion_matrix):
     return recall, precision, F1, classification_rate
 
 
-if __name__ == '__main__':
-    clean_data = import_clean_data()
-    noisy_data = import_noisy_data()
-    # clean_classification_rate = K_fold_evaluation(clean_data)[0]
-    # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
-    # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
-    unpruned_measures, pruned_measures = K_fold_pruning_evaluation(noisy_data)
+# if __name__ == '__main__':
+#     clean_data = import_clean_data()
+#     noisy_data = import_noisy_data()
+#     # clean_classification_rate = K_fold_evaluation(clean_data)[0]
+#     # noisy_classification_rate = K_fold_evaluation(noisy_data)[0]
+#     # print('Classification rates: clean data:{0}, noisy data:{1}.'.format(clean_classification_rate, noisy_classification_rate))
+#     unpruned_measures, pruned_measures = K_fold_pruning_evaluation(noisy_data)
