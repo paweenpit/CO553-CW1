@@ -5,7 +5,7 @@ from util import import_new_data
 # replace unseendata.txt below with the actual filname
 #call python3 run_on_unseen_data.py from teriminal
 
-new_data_file_name = 'unseendata.txt'
+new_data_file_name = 'unseendata_placeholder.txt'
 new_data = import_new_data(new_data_file_name)
 
 

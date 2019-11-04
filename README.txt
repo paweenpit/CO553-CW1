@@ -12,47 +12,47 @@ visulize.py contains the implementation of decision tree visulisation.
 util.py is for utilites such as functions for importing data.
 
 
-All other files(with .py extention) are setup to run the code for the various questions in the assingment.
+All other files(with .py extention) are setup to run the code to replicate the results in our report and to allow the marker to run our implemetation on other datasets.
 
 
 How to run the code?
-After unpacking the zip file navigate to the unzipped folder in the directory:
+After extracting the zip, file navigate to the extracted folder in the directory:
 
 To run the code that we used to calculate the result that are in the report call:
 
 python3 main.py 
 
-in the terminal. This will first run the 10-fold crossvalidation on both clean and noisy datasets and then run the 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end. Note that the dataset is shuffled in a random order each time so results may not mach exacly to whats in the report.
+in the terminal. This will first run the 10-fold crossvalidation on both clean and noisy datasets and then run the 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end. Note that the dataset is shuffled in a random order each time so results may not match exacly to what's in the report.
 
 
 To run our crossvalidation code on a different dataset:
 
-move the file containg the dataset to the same folder as our .py files
+move the file containg the dataset you wish to run to the extracted folder
 
-open the run_crossvalidation_on_unseen_data.py file in an editor. On line 8 where it says 'unseendata.txt' replace this with the name of the file for the dataset you want to run. Then call:
+open the run_crossvalidation_on_unseen_data.py file in an editor. On line 8 where it says 'unseendata_placeholder.txt' replace this with the name of the file for the dataset you want to run. Then call:
 
-run_crossvalidation_on_unseen_data.py 
+python3 run_crossvalidation_on_unseen_data.py 
 
 in the terminal. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
 
 
 To run our crossvalidation code with pruning on a different dataset:
 
-move the file containg the dataset to the same folder as our .py files
+move the file containg the dataset to the extracted folder
 
-open the run_pruning_on_unseen_data.py file in an editor. On line 8 where it says 'unseendata.txt' replace this with the name of the file for the dataset you want to run. Then call:
+open the run_pruning_on_unseen_data.py file in an editor. On line 8 where it says 'unseendata_placeholder.txt' replace this with the name of the file for the dataset you want to run. Then call:
 
-run_pruning_on_unseen_data.py 
+python3 run_pruning_on_unseen_data.py 
 
 in the terminal. 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
 
 
 To run classification on our 'best' tree on dataset:
 
-move the file containg the dataset to the same folder as our .py files
+move the file containg the dataset to the extracted folder
 
-open the run_classification.py file in an editor. On line 8 where it says 'unseendata.txt' replace this with the name of the file for the dataset you want to run. Then call:
+open the run_classification.py file in an editor. On line 8 where it says 'unseendata_placeholder.txt' replace this with the name of the file for the dataset you want to run. Then call:
 
-run_classification.py 
+python3 run_classification.py 
 
-in the terminal. This will first classify the samples in the dataset, using our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
+in the terminal. This will first classify the samples in the dataset, with our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.

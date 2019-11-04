@@ -20,7 +20,7 @@ def STEP3():
     trees) =\
     K_fold_evaluation(clean_data)
     print('Average confusion matrix for clean data:')
-    print(np.round(average_confusion_matrix, 1))
+    print(np.round(average_confusion_matrix, 0))
     print('Average recall per class for clean data: {}'\
     .format(np.round(average_recall, 3)))
     print('Average precision per class for clean data: {}'\
@@ -42,7 +42,7 @@ def STEP3():
     trees) =\
     K_fold_evaluation(noisy_data)
     print('Average confusion matrix for noisy data:')
-    print(np.round(average_confusion_matrix, 1))
+    print(np.round(average_confusion_matrix, 0))
     print('Average recall per class for noisy data: {}'\
     .format(np.round(average_recall, 3)))
     print('Average presicion per class for noisy data: {}'\
