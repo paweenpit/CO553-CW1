@@ -2,10 +2,6 @@ from evaluation import *
 from util import import_new_data
 import sys
 
-#move the file with the data you want to run our code on to the same folder as this file
-# replace unseendata.txt below with the actual filname
-#call python3 run_on_unseen_data.py from teriminal
-
 new_data_file_name = sys.argv[1]
 new_data = import_new_data(new_data_file_name)
 
