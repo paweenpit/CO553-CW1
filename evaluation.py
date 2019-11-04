@@ -253,6 +253,7 @@ def K_fold_pruning_evaluation(data, nr_of_folds = 10):
             pruned_all_folds_average_F1 =\
             np.vstack((pruned_all_folds_average_F1 , pruned_average_F1))
 
+
     #calculate average of evaluation measures across all folds
     average_recall =\
     np.mean(all_folds_average_recall, axis=0)

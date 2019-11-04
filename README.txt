@@ -1,11 +1,11 @@
-This file explains how to run the code submitted for the CO553 Intro to Machine Learning coursework 1: desicion trees from the group comprising of Niusha Alavi, Olle Nilsson, Paween Pitimanaaree and Alfred Tingey.
+This file explains how to run the code submitted for the CO553 Intro to Machine Learning coursework 1: desicion trees, from the group comprising of Niusha Alavi, Olle Nilsson, Paween Pitimanaaree and Alfred Tingey.
 
 
 Which file contains what?
 
-desicion_tree.py contains the implementation of the algorirm for training desicion trees.
+desicion_tree.py contains the implementation of the algorithm for training desicion trees including the decision_tree_learning(dataset, depth) function as asked in the spec.
 
-evaluation.py contains the implementation of crossvalidation and pruning algoritms.
+evaluation.py contains the implementation of crossvalidation and pruning algorithms. including the evaluate(test_db, trained_tree) function as asked in the spec.
 
 visulize.py contains the implementation of decision tree visulisation.
 
@@ -33,7 +33,7 @@ open the run_crossvalidation_on_unseen_data.py file in an editor. On line 8 wher
 
 run_crossvalidation_on_unseen_data.py 
 
-in the terminal. This will first run the 10-fold crossvalidation on your new dataset. And results printed at the end.
+in the terminal. This will run the 10-fold crossvalidation on your new dataset and print results at the end.
 
 
 To run our crossvalidation code with pruning on a different dataset:
@@ -44,4 +44,15 @@ open the run_pruning_on_unseen_data.py file in an editor. On line 8 where it say
 
 run_pruning_on_unseen_data.py 
 
-in the terminal. This will first run the 10-fold crossvalidation on your new dataset. And results printed at the end.
+in the terminal. 10-fold crossvalidation with pruning on the clean and noisy datasets. Results will print in screen while it calculates and averages displayed at the end.
+
+
+To run classification on our 'best' tree on dataset:
+
+move the file containg the dataset to the same folder as our .py files
+
+open the run_classification.py file in an editor. On line 8 where it says 'unseendata.txt' replace this with the name of the file for the dataset you want to run. Then call:
+
+run_classification.py 
+
+in the terminal. This will first classify the samples in the dataset, using our 'best' trained tree using the evaluate(test_db, trained_tree) function, and display the results.
